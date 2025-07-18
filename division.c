@@ -48,10 +48,13 @@ void f(int prime)
     if(bb[0])
       { searching++; }
   }
-  //while(prime)
+  printf("%d ",prime);
+  while(prime)
     {
+      prime--;
+      c--;
     }
-  printf("%d %d\n",prime,c);
+  printf(" %d\n",c);
   
 }
 
