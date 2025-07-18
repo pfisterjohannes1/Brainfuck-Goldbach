@@ -19,6 +19,8 @@ f tests if a integer >3 is the sum of 2 primes
 int main(void)
 {
 
+  size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
+
   int found=1;
   int N=2;
   while(found)
@@ -44,7 +46,7 @@ int main(void)
               int r=0;
               int t=0;
               int c=1; //we test if this is a divisor.
-              int bb[]={0,1,0}; //placeholder, we later need it to implement if in brainfuck
+              int bb[]={0,1,1,0}; //placeholder, we later need it to implement if in brainfuck
               int a=0;
               int searching = 1;
               while(searching) //search for the smallest divisor >1
@@ -62,8 +64,19 @@ int main(void)
                           r--;
                           t--;
                           bb[0]--;
-                          if(bb[0])
-                            { r++; }
+
+                          //simulate if(bb[0]) with while
+                          p=0;
+                          while(bb[p])
+                            {
+                              r++;
+                              p++;
+                              p++;
+                            }
+                          p++;
+                          while(bb[p])
+                            { p++; }
+                          printf("p %zu\n",p);
                         }
                     }
                   searching--;
