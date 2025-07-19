@@ -3,7 +3,7 @@ C program that is a playing ground for algorithm in brainfuck
 It is close to brainfuck, f() only uses ++ and --, no
  functions, pointers, for, >, <, ==, ... (only !=0 is allowed),
  switch case, else, if, = (except to set pointer p) ...
-Allowed is ++, --, while(n), int and setting p when position is
+Allowed is ++, --, while( n ), int and setting p when position is
 known is allowed.
 printf() for debugging is ok.
 The idea is to have a easier experiment before using brainfuck
@@ -75,7 +75,7 @@ enum VariablePosition_T
 #define IF( name ) \
   d[name##1]++;    \
   p=name;          \
-  while(d[p])      \
+  while( d[p] )    \
     {
 
 //Last 2 -- is to set p back to name
@@ -84,10 +84,10 @@ enum VariablePosition_T
       p++;         \
     }              \
   p++;             \
-  while(d[p])      \
+  while( d[p] )    \
     { p++; }       \
   p--;             \
-  while(d[p])      \
+  while( d[p] )    \
     { p++; }       \
   p--;             \
   p--;             \
@@ -96,7 +96,7 @@ enum VariablePosition_T
 #define IFR( name )\
   d[name##1]++;    \
   p=name;          \
-  while(d[p])      \
+  while( d[p] )    \
     {
 
 #define IFR_END    \
@@ -104,10 +104,10 @@ enum VariablePosition_T
       p--;         \
     }              \
   p--;             \
-  while(d[p])      \
+  while( d[p] )    \
     { p--; }       \
   p++;             \
-  while(d[p])      \
+  while( d[p] )    \
     { p--; }       \
   p++;             \
   p++;             \
@@ -124,7 +124,7 @@ int main(void)
   #if TESTHALT
     d[V_N]--;
   #endif
-  while(d[V_found])
+  while( d[V_found] )
     {
       d[V_N]++;
       d[V_N]++;
@@ -140,32 +140,30 @@ int main(void)
       d[V_s2]--;
       while( d[V_found] ) { d[V_found]--; }
       d[V_s2]--;
-      while(d[V_s2]) //we decrease second sumand and increase first till second one is 1
+      while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
           d[V_s2]++;
           d[V_testS2]++; //Which summand we test and how many loops (2).
           d[V_testS2]++;
-          while(d[V_testS2]) //test both summands for beeing prime
+          while( d[V_testS2] ) //test both summands for beeing prime
             {
               d[V_testS2]--;
               ADDEQUAL( V_prime, V_s1, V_bothPrime2 );
               IFR(V_testS2)
-                {
                   while( d[V_prime] ) { d[V_prime]--; }
                   ADDEQUAL( V_prime, V_s2, V_bothPrime2 );
-                }
               IFR_END
               d[V_c]++; //we test if this is a divisor.
               d[V_searching]++;
-              while(d[V_searching]) //search for the smallest divisor >1
+              while( d[V_searching] ) //search for the smallest divisor >1
                 {
                   d[V_c]++;
                   d[V_r]++; //Running
                   ADDEQUAL( V_b, V_prime, V_b2 );
-                  while(d[V_r]) //we calculate prime%c or bb%a
+                  while( d[V_r] ) //we calculate prime%c or bb%a
                     {
                       ADDEQUAL( V_t, V_c, V_b2 );
-                      while(d[V_t])
+                      while( d[V_t] )
                         {
                           d[V_r]--;
                           d[V_t]--;
@@ -178,13 +176,13 @@ int main(void)
                     }
                   d[V_searching]--;
                   IF(V_b) //set when c was not a divisor of prime (prime%c!=0)
-                    { d[V_searching]++; }
+                    d[V_searching]++;
                   IF_END
                   while( d[V_b] )  { d[V_b]++; }
                 }
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
-              while(d[V_prime])
+              while( d[V_prime] )
                 {
                   d[V_prime]--;
                   d[V_c]--;
@@ -211,7 +209,9 @@ int main(void)
         }
       printf("found N %i, %i\n",d[V_N],d[V_found]);
     }
+#ifndef GEN_SIMPLE
 }
+#endif
 
 
 
