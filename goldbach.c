@@ -2,8 +2,9 @@
 C program that is a playing ground for algorithm in brainfuck
 It is close to brainfuck, f() only uses ++ and --, no
  functions, pointers, for, >, <, ==, ... (only !=0 is allowed),
- switch case, else...
-Allowed is ++, --, while(n), if, =, int is allowed.
+ switch case, else, if, = (except to set pointer p) ...
+Allowed is ++, --, while(n), int and setting p when position is
+known is allowed.
 printf() for debugging is ok.
 The idea is to have a easier experiment before using brainfuck
 
@@ -47,7 +48,7 @@ enum VariablePosition_T
   V_found,
   V_s1,
   V_s2,
-  IFVAR(V_bothPrime)
+  IFVAR(V_bothPrime) //increased for every summand which is prime
   IFVAR_R(V_testS2)
   V_prime,
   IFVAR(V_b)
@@ -72,7 +73,7 @@ enum VariablePosition_T
 
 //To simulate if with only while. use it only for IFVAR variables
 #define IF( name ) \
-  d[name##1]=1;    \
+  d[name##1]++;    \
   p=name;          \
   while(d[p])      \
     {
@@ -93,7 +94,7 @@ enum VariablePosition_T
 
 //To simulate if with only while. use it only for IFVAR_R variables
 #define IFR( name )\
-  d[name##1]=1;    \
+  d[name##1]++;    \
   p=name;          \
   while(d[p])      \
     {
@@ -117,10 +118,11 @@ int main(void)
   size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
   int d[100]={0};
 #endif
-  d[V_found]=1;
-  d[V_N]=2;
+  d[V_found]++;
+  d[V_N]++;
+  d[V_N]++;
   #if TESTHALT
-    d[V_N]=1;
+    d[V_N]--;
   #endif
   while(d[V_found])
     {
@@ -130,16 +132,17 @@ int main(void)
         d[V_N]++;
       #endif
       //Test if N is sumnof 2 primes
-      d[V_s1]=2;
+      while( d[V_s1] ) { d[V_s1]--; }
+      d[V_s1]++;
+      d[V_s1]++;
       ADDEQUAL( V_s2, V_N, V_bothPrime2 );
       d[V_s2]--;
       d[V_s2]--;
-      d[V_found]=0;
+      while( d[V_found] ) { d[V_found]--; }
       d[V_s2]--;
       while(d[V_s2]) //we decrease second sumand and increase first till second one is 1
         {
           d[V_s2]++;
-          d[V_bothPrime]=0; //increased for every summand which is prime
           d[V_testS2]++; //Which summand we test and how many loops (2).
           d[V_testS2]++;
           while(d[V_testS2]) //test both summands for beeing prime
@@ -148,16 +151,16 @@ int main(void)
               ADDEQUAL( V_prime, V_s1, V_bothPrime2 );
               IFR(V_testS2)
                 {
-                  d[V_prime]=d[V_s2];
+                  while( d[V_prime] ) { d[V_prime]--; }
+                  ADDEQUAL( V_prime, V_s2, V_bothPrime2 );
                 }
               IFR_END
-              d[V_c]=1; //we test if this is a divisor.
+              d[V_c]++; //we test if this is a divisor.
               d[V_searching]++;
               while(d[V_searching]) //search for the smallest divisor >1
                 {
                   d[V_c]++;
                   d[V_r]++; //Running
-                  d[V_b]=0;
                   ADDEQUAL( V_b, V_prime, V_b2 );
                   while(d[V_r]) //we calculate prime%c or bb%a
                     {
@@ -177,6 +180,7 @@ int main(void)
                   IF(V_b) //set when c was not a divisor of prime (prime%c!=0)
                     { d[V_searching]++; }
                   IF_END
+                  while( d[V_b] )  { d[V_b]++; }
                 }
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
@@ -189,6 +193,7 @@ int main(void)
               IFR( V_c ) //true if c!=prime => not a prime number
                   d[V_bothPrime]--;
               IFR_END
+              while( d[V_c] )  { d[V_c]++; }
             }
 
           d[V_found]++;
@@ -199,6 +204,7 @@ int main(void)
           IF( V_bothPrime )
               d[V_found]--;
           IF_END
+          while( d[V_bothPrime] )  { d[V_bothPrime]++; }
           d[V_s2]--; //test next summand pair
           d[V_s1]++;
           d[V_s2]--;
