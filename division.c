@@ -20,12 +20,22 @@ f tests if a integer >3 is the sum of 2 primes
   #include <stdio.h>
 #endif
 
+//We need some helper variables when we want to emulate a if
+//Use this when we make a variable that can be used like
+// if( variable )
+//We need <variable> 1 0 0 in the array.
+//in the end of the if we go to the first 0
+//after that, the change from 1 to 0 is used to align
+//the pointer again to a known position
 #define IFVAR(name) \
   name,             \
   name ## 1,        \
   name ## 2,        \
   name ## end,      \
 
+//if we use 2 variables next to each other, that both need if
+//use this for the second. it reduces needed variables
+//We use <variableA> 1 0 0 1 <variableB> in the array.
 #define IFVAR_R(name) \
   name ## 1,        \
   name,             \
@@ -47,12 +57,14 @@ enum VariablePosition_T
   V_searching,
 };
 
+//To simulate if with only while. use it only for IFVAR variables
 #define IF( name ) \
   d[name##1]=1;    \
   p=name;          \
   while(d[p])      \
     {
 
+//Last 2 -- is to set p back to name
 #define IF_END     \
       p++;         \
       p++;         \
@@ -63,7 +75,10 @@ enum VariablePosition_T
   p--;             \
   while(d[p])      \
     { p++; }       \
+  p--;             \
+  p--;             \
 
+//To simulate if with only while. use it only for IFVAR_R variables
 #define IFR( name )\
   d[name##1]=1;    \
   p=name;          \
@@ -80,6 +95,8 @@ enum VariablePosition_T
   p++;             \
   while(d[p])      \
     { p--; }       \
+  p++;             \
+  p++;             \
 
 #ifndef GEN_SIMPLE
 int main(void)
