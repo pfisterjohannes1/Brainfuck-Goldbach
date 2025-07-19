@@ -1,1 +1,1 @@
-gcc -ggdb -Wall -Wextra -Wpedantic ./division.c
+gcc -ggdb -Wall -Wextra -Wpedantic ./goldbach.c

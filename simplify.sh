@@ -1,5 +1,5 @@
 
 
-gcc -DGEN_SIMPLE=1 -E ./division.c -o division_simple.c
+gcc -DGEN_SIMPLE=1 -E ./goldbach.c -o goldbach_simple.c
 
-sed '/^#/d' -i division_simple.c
+sed '/^#/d' -i goldbach_simple.c
