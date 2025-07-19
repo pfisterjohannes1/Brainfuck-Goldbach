@@ -37,6 +37,9 @@ class output(object):
   def move(self, n, src=""):
     self.lastComment = self.lastComment + src
     self.target += n
+    self._execMove()
+    self.pos -= n
+    self.target -= n
 
   def increment(self, pos=None, src=""):
     if pos:
