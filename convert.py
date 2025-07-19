@@ -11,117 +11,132 @@ def parse_enum(source):
   return mapping
 
 
+
 class output(object):
-  def __init__(self,mapping):
-    self.pos=0
-    self.target=0
-    self.out=[]
-    self.whilepos=[]
-    self.enum_map=mapping
+  def __init__(self, mapping):
+    self.pos = 0
+    self.target = 0
+    self.out = []
+    self.whilepos = []
+    self.enum_map = mapping
+    self.lastComment=""
+
+  def emit(self, code, src):
+    self.out.append((code, f"// {src}" if src else ""))
+
   def _execMove(self):
-    d = self.target-self.pos
+    d = self.target - self.pos
     code = '>' * d if d > 0 else '<' * (-d)
-    self.out.append(code)
-    self.pos=self.target
-  def goTo(self,var):
+    self.pos = self.target
+    self.emit(code, self.lastComment)
+    self.lastComment=""
+
+  def goTo(self, var, _src=""):
     self.target = self.enum_map[var]
-  def move(self,n):
-    self.target = self.target+n
-  def increment(self,pos=None):
-    if(pos):
+
+  def move(self, n, src=""):
+    self.lastComment = self.lastComment + src
+    self.target += n
+
+  def increment(self, pos=None, src=""):
+    if pos:
       self.goTo(pos)
     self._execMove()
-    self.out.append('+')
-  def decrement(self,pos=None):
-    if(pos):
+    self.emit('+', src)
+
+  def decrement(self, pos=None, src=""):
+    if pos:
       self.goTo(pos)
     self._execMove()
-    self.out.append('-')
-  def whileStart(self,pos=None):
-    if(pos):
+    self.emit('-', src)
+
+  def whileStart(self, pos=None, src=""):
+    if pos:
       self.goTo(pos)
     self._execMove()
-    self.whilepos.append(self.pos)
-    self.out.append('[')
-  def whileEnd(self):
-    self.target = self.whilepos.pop()
+    self.whilepos.append(pos)
+    self.emit('[', src)
+
+  def whileEnd(self, src=""):
+    print( self.whilepos )
+    target = self.whilepos.pop()
+    if target is not None:
+      self.goTo(target)
     self._execMove()
-    self.out.append(']')
+    self.emit(']', src)
+
   def code(self):
     if self.whilepos:
-      print( self.whilepos )
       raise Exception("while not ended")
-    return ''.join(self.out)
+    return ''.join(code for code, _ in self.out)
 
-
-
+  def debug_code(self):
+    if self.whilepos:
+      raise Exception("while not ended")
+    return "\n".join(f"{code:<8} {comment}" for code, comment in self.out if code or comment )
 
 
 def translate_instruction(line, out):
   line = line.strip()
 
-  # Inkrement
+  # Inkrement: d[x]++;
   m = re.match(r'd\[([^;]+)\]\s*\+\+\s*;', line)
   if m:
     var = m.group(1)
-    out.increment( var )
-    translate_instruction( line[m.end():], out )
+    out.increment(var, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # Dekrement
-  m = re.match(r'd\[([^;]+)\]\s*--;', line)
-  # pointer Dekrement
+  # Dekrement: d[x]--;
+  m = re.match(r'd\[([^;]+)\]\s*--\s*;', line)
   if m:
     var = m.group(1)
-    out.decrement( var )
-    translate_instruction( line[m.end():], out )
+    out.decrement(var, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # while(d[VAR])
+  # while (d[x])
   m = re.match(r'while\s*\(\s*d\[([^;]+)\]\s*\)', line)
   if m:
     var = m.group(1).strip()
-    if var=='p':
-      out.whileStart()
-    else:
-      out.whileStart(var)
-    translate_instruction( line[m.end():], out )
+    out.whileStart(None if var == 'p' else var, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # Blockend
+  # Blockende }
   m = re.match(r'}', line)
   if m:
-    out.whileEnd()
-    translate_instruction( line[m.end():], out )
+    out.whileEnd(line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # p = V_xyz;
+  # p = xyz;
   m = re.match(r'p\s*=\s*([^;]+);', line)
   if m:
     var = m.group(1)
-    out.goTo(var)
-    translate_instruction( line[m.end():], out )
+    out.goTo(var, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # p++
+  # p++;
   m = re.match(r'p\s*\+\+\s*;', line)
   if m:
-    out.move( 1 )
-    translate_instruction( line[m.end():], out )
+    out.move(1, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
-  # p--
+  # p--;
   m = re.match(r'p\s*--\s*;', line)
   if m:
-    out.move( -1 )
-    translate_instruction( line[m.end():], out )
+    out.move(-1, line[:m.end()])
+    translate_instruction(line[m.end():], out)
     return
 
+  # {
   m = re.match(r'{', line)
   if m:
-    translate_instruction( line[m.end():], out )
+    translate_instruction(line[m.end():], out)
     return
-
 
 
 
@@ -144,11 +159,14 @@ def convert_to_brainfuck(source):
   return out
 
 
-# Beispielnutzung:
 if __name__ == '__main__':
   with open('goldbach_simple.c', 'r') as f:
     source = f.read()
 
-  bf = convert_to_brainfuck(source)
-  print(bf.code())
+  out = convert_to_brainfuck(source)
+  with open("out.bf", "w") as f:
+    f.write(out.code())
+  with open("debug_out.txt", "w") as f:
+    f.write(out.debug_code())
+
 
