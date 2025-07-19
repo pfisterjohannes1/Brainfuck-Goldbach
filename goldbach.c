@@ -57,6 +57,19 @@ enum VariablePosition_T
   V_searching,
 };
 
+#define ADDEQUAL( to, from, temp ) \
+  while( d[from] )                 \
+    {                              \
+      d[from]--;                   \
+      d[temp]++;                   \
+      d[to]++;                     \
+    }                              \
+  while( d[temp] )                 \
+    {                              \
+      d[temp]--;                   \
+      d[from]++;                   \
+    }                              \
+
 //To simulate if with only while. use it only for IFVAR variables
 #define IF( name ) \
   d[name##1]=1;    \
@@ -118,7 +131,7 @@ int main(void)
       #endif
       //Test if N is sumnof 2 primes
       d[V_s1]=2;
-      d[V_s2]+=d[V_N];
+      ADDEQUAL( V_s2, V_N, V_bothPrime2 );
       d[V_s2]--;
       d[V_s2]--;
       d[V_found]=0;
@@ -127,11 +140,12 @@ int main(void)
         {
           d[V_s2]++;
           d[V_bothPrime]=0; //increased for every summand which is prime
-          d[V_testS2]+=2; //Which summand we test and how many loops (2).
+          d[V_testS2]++; //Which summand we test and how many loops (2).
+          d[V_testS2]++;
           while(d[V_testS2]) //test both summands for beeing prime
             {
               d[V_testS2]--;
-              d[V_prime]+=d[V_s1]; //which number we test for beeing prime
+              ADDEQUAL( V_prime, V_s1, V_bothPrime2 );
               IFR(V_testS2)
                 {
                   d[V_prime]=d[V_s2];
@@ -143,10 +157,11 @@ int main(void)
                 {
                   d[V_c]++;
                   d[V_r]++; //Running
-                  d[V_b]=d[V_prime]; //copy of prime we can decrease.
+                  d[V_b]=0;
+                  ADDEQUAL( V_b, V_prime, V_b2 );
                   while(d[V_r]) //we calculate prime%c or bb%a
                     {
-                      d[V_t]+=d[V_c];
+                      ADDEQUAL( V_t, V_c, V_b2 );
                       while(d[V_t])
                         {
                           d[V_r]--;
