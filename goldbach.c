@@ -79,7 +79,8 @@ enum VariablePosition_T
     {
 
 //Last 2 -- is to set p back to name
-#define IF_END     \
+#define IF_END(name)\
+      p=name;      \
       p++;         \
       p++;         \
     }              \
@@ -99,7 +100,8 @@ enum VariablePosition_T
   while( d[p] )    \
     {
 
-#define IFR_END    \
+#define IFR_END(name)\
+      p=name;      \
       p--;         \
       p--;         \
     }              \
@@ -152,7 +154,7 @@ int main(void)
               IFR(V_testS2)
                   while( d[V_prime] ) { d[V_prime]--; }
                   ADDEQUAL( V_prime, V_s2, V_bothPrime2 );
-              IFR_END
+              IFR_END(V_testS2)
               d[V_c]++; //we test if this is a divisor.
               d[V_searching]++;
               while( d[V_searching] ) //search for the smallest divisor >1
@@ -169,15 +171,15 @@ int main(void)
                           d[V_t]--;
                           d[V_b]--;
 
-                          IF(V_b)
+                          IF( V_b )
                               d[V_r]++;
-                          IF_END
+                          IF_END( V_b )
                         }
                     }
                   d[V_searching]--;
                   IF(V_b) //set when c was not a divisor of prime (prime%c!=0)
                     d[V_searching]++;
-                  IF_END
+                  IF_END( V_b )
                   while( d[V_b] )  { d[V_b]++; }
                 }
               //test if c==prime, if this is true the smallest divisor is prime
@@ -190,7 +192,7 @@ int main(void)
               d[V_bothPrime]++;
               IFR( V_c ) //true if c!=prime => not a prime number
                   d[V_bothPrime]--;
-              IFR_END
+              IFR_END( V_c )
               while( d[V_c] )  { d[V_c]++; }
             }
 
@@ -201,7 +203,7 @@ int main(void)
           d[V_bothPrime]--;
           IF( V_bothPrime )
               d[V_found]--;
-          IF_END
+          IF_END ( V_bothPrime )
           while( d[V_bothPrime] )  { d[V_bothPrime]++; }
           d[V_s2]--; //test next summand pair
           d[V_s1]++;
