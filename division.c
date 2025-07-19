@@ -10,10 +10,15 @@ The idea is to have a easier experiment before using brainfuck
 f tests if a integer >3 is the sum of 2 primes
 */
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
+//set when we don't test even numbers but ever 3. number till 37
+//This way we can test if the code can halt
+#define TESTHALT 0
 
+#ifndef GEN_SIMPLE
+  #include <stdbool.h>
+  #include <stdint.h>
+  #include <stdio.h>
+#endif
 
 #define IFVAR(name) \
   name,             \
@@ -77,20 +82,29 @@ enum VariablePosition_T
   while(d[p])      \
     { p--; }       \
 
+#ifndef GEN_SIMPLE
 int main(void)
 {
   size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
   int d[100]={0};
+#endif
   d[V_found]=1;
-  d[V_N]=1;
+  d[V_N]=2;
+  #if TESTHALT
+    d[V_N]=1;
+  #endif
   while(d[V_found])
     {
       d[V_N]++;
       d[V_N]++;
-      d[V_N]++;
+      #if TESTHALT
+        d[V_N]++;
+      #endif
       //Test if N is sumnof 2 primes
       d[V_s1]=2;
-      d[V_s2]=d[V_N]-2;
+      d[V_s2]=d[V_N];
+      d[V_s2]--;
+      d[V_s2]--;
       d[V_found]=0;
       while(d[V_s2]-1) //we decrease second sumand and increase first till second one is 1
         {
