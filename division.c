@@ -15,101 +15,130 @@ f tests if a integer >3 is the sum of 2 primes
 #include <stdio.h>
 
 
+#define IFVAR(name) \
+  name,             \
+  name ## 1,        \
+  name ## 2,        \
+  name ## end,      \
+
+#define IFVAR_R(name) \
+  name ## 1,        \
+  name,             \
+
+
+enum VariablePosition_T
+{
+  V_N,
+  V_found,
+  V_s1,
+  V_s2,
+  IFVAR(V_bothPrime)
+  IFVAR_R(V_testS2)
+  V_prime,
+  IFVAR(V_b)
+  V_a,
+  V_c,
+  V_r,
+  V_t,
+  V_searching,
+};
 
 int main(void)
 {
-
   size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
-
-  int found=1;
-  int N=2;
-  while(found)
+  int d[100]={0};
+  d[V_found]=1;
+  d[V_N]=2;
+  while(d[V_found])
     {
-      N++;
-      N++;
+      d[V_N]++;
+      d[V_N]++;
       //Test if N is sumnof 2 primes
-      int s1=2;
-      int s2=N-2;
-      found=0;
-      while(s2-1) //we decrease second sumand and increase first till second one is 1
+      d[V_s1]=2;
+      d[V_s2]=d[V_N]-2;
+      d[V_found]=0;
+      while(d[V_s2]-1) //we decrease second sumand and increase first till second one is 1
         {
-          int bothPrime=0; //increased for every summand which is prime
-          int testS2=2; //Which summand we test and how many loops (2).
-          while(testS2) //test both summands for beeing prime
+          d[V_bothPrime]=0; //increased for every summand which is prime
+          d[V_testS2]=2; //Which summand we test and how many loops (2).
+          while(d[V_testS2]) //test both summands for beeing prime
             {
-              testS2--;
-              int prime=s1; //whicch number we test for beeing prime
-              if(testS2)
+              d[V_testS2]--;
+              d[V_prime]=d[V_s1]; //whicch number we test for beeing prime
+              if(d[V_testS2])
                 {
-                  prime=s2;
+                  d[V_prime]=d[V_s2];
                 }
-              int r=0;
-              int t=0;
-              int c=1; //we test if this is a divisor.
-              int bb[]={0,1,1,0}; //placeholder, we later need it to implement if in brainfuck
-              int a=0;
-              int searching = 1;
-              while(searching) //search for the smallest divisor >1
+              d[V_r]=0;
+              d[V_t]=0;
+              d[V_c]=1; //we test if this is a divisor.
+              d[V_a]=0;
+              d[V_searching] = 1;
+              while(d[V_searching]) //search for the smallest divisor >1
                 {
-                  c++;
-                  r=1; //Running
-                  t=0;
-                  bb[0]=prime; //copy of prime we can decrease.
-                  a=c;
-                  while(r) //we calculate prime%c or bb%a
+                  d[V_c]++;
+                  d[V_r]=1; //Running
+                  d[V_t]=0;
+                  d[V_b]=d[V_prime]; //copy of prime we can decrease.
+                  d[V_a]=d[V_c];
+                  while(d[V_r]) //we calculate prime%c or bb%a
                     {
-                      t=a;
-                      while(t)
+                      d[V_t]=d[V_a];
+                      while(d[V_t])
                         {
-                          r--;
-                          t--;
-                          bb[0]--;
+                          d[V_r]--;
+                          d[V_t]--;
+                          d[V_b]--;
 
-                          //simulate if(bb[0]) with while
-                          p=0;
-                          while(bb[p])
+                          //simulate if(d[V_b]) with while
+                          d[V_b1]=1;
+                          p=V_b;
+                          while(d[p])
                             {
-                              r++;
+                              d[V_r]++;
                               p++;
                               p++;
                             }
                           p++;
-                          while(bb[p])
+                          while(d[p])
+                            { p++; }
+                          p--;
+                          while(d[p])
                             { p++; }
                           printf("p %zu\n",p);
                         }
                     }
-                  searching--;
-                  if(bb[0]) //set when c was not a divisor of prime (prime%c!=0)
-                    { searching++; }
+                  d[V_searching]--;
+                  if(d[V_b]) //set when c was not a divisor of prime (prime%c!=0)
+                    { d[V_searching]++; }
                 }
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
-              while(prime)
+              while(d[V_prime])
                 {
-                  prime--;
-                  c--;
+                  d[V_prime]--;
+                  d[V_c]--;
                 }
-              bothPrime++;
-              if( c ) //true if c!=prime => not a prime number
+              d[V_bothPrime]++;
+              if( d[V_c] ) //true if c!=prime => not a prime number
                 {
-                  bothPrime--;
+                  d[V_bothPrime]--;
                 }
             }
 
-          found++;
+          d[V_found]++;
 
           //found a pair if bothPrime is 2 (both summands are prime)
-          bothPrime--;
-          bothPrime--;
-          if( bothPrime )
+          d[V_bothPrime]--;
+          d[V_bothPrime]--;
+          if( d[V_bothPrime] )
             {
-              found--;
+              d[V_found]--;
             }
-          s2--; //test next summand pair
-          s1++;
+          d[V_s2]--; //test next summand pair
+          d[V_s1]++;
         }
-      printf("found N %i, %i\n",N,found);
+      printf("found N %i, %i\n",d[V_N],d[V_found]);
     }
 }
 
