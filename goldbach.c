@@ -48,11 +48,11 @@ enum VariablePosition_T
   V_found,
   V_s1,
   V_s2,
-  IFVAR(V_bothPrime) //increased for every summand which is prime
-  IFVAR_R(V_testS2)
-  V_prime,
+  V_bothPrime, //increased for every summand which is prime
   IFVAR(V_b)
-  IFVAR_R(V_c)
+  IFVAR_R(V_testS2)
+  V_c,
+  V_prime,
   V_r,
   V_t,
   V_searching,
@@ -137,7 +137,7 @@ int main(void)
       while( d[V_s1] ) { d[V_s1]--; }
       d[V_s1]++;
       d[V_s1]++;
-      ADDEQUAL( V_s2, V_N, V_bothPrime2 );
+      ADDEQUAL( V_s2, V_N, V_b2 );
       d[V_s2]--;
       d[V_s2]--;
       while( d[V_found] ) { d[V_found]--; }
@@ -150,12 +150,12 @@ int main(void)
           while( d[V_testS2] ) //test both summands for beeing prime
             {
               d[V_testS2]--;
-              ADDEQUAL( V_prime, V_s1, V_bothPrime2 );
+              ADDEQUAL( V_prime, V_s1, V_b2 );
               IFR(V_testS2)
                   while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s2, V_bothPrime2 );
+                  ADDEQUAL( V_prime, V_s2, V_b2 );
               IFR_END(V_testS2)
-              d[V_c]++; //we test if this is a divisor.
+              d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
               while( d[V_searching] ) //search for the smallest divisor >1
                 {
@@ -190,10 +190,11 @@ int main(void)
                   d[V_c]--;
                 }
               d[V_bothPrime]++;
-              IFR( V_c ) //true if c!=prime => not a prime number
+              while( d[V_c] ) //true if c!=prime => not a prime number
+                {
                   d[V_bothPrime]--;
-              IFR_END( V_c )
-              while( d[V_c] )  { d[V_c]++; }
+                  while( d[V_c] )  { d[V_c]++; }
+                }
             }
 
           d[V_found]++;
@@ -201,15 +202,16 @@ int main(void)
           //found a pair if bothPrime is 2 (both summands are prime)
           d[V_bothPrime]--;
           d[V_bothPrime]--;
-          IF( V_bothPrime )
+          while( d[V_bothPrime] )
+            {
               d[V_found]--;
-          IF_END ( V_bothPrime )
-          while( d[V_bothPrime] )  { d[V_bothPrime]++; }
-          d[V_s2]--; //test next summand pair
+              while( d[V_bothPrime] )  { d[V_bothPrime]++; }
+            }
           d[V_s1]++;
+          d[V_s2]--; //test next summand pair
           d[V_s2]--;
         }
-      printf("found N %i, %i\n",d[V_N],d[V_found]);
+      printf("found TN %i, %i\n",d[V_N],d[V_found]);
     }
 #ifndef GEN_SIMPLE
 }
