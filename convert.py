@@ -20,6 +20,8 @@ class output(object):
     self.whilepos = []
     self.enum_map = mapping
     self.lastComment=""
+    self.lastTarget=None
+    self.moves={}
 
   def emit(self, code, src):
     self.out.append((code, f"// {src}" if src else ""))
@@ -31,8 +33,18 @@ class output(object):
     self.emit(code, self.lastComment)
     self.lastComment=""
 
+  def _recordMove(self, varables):
+    varables.sort()
+    move = '-'.join(varables)
+    if move in self.moves:
+      self.moves[move] += 1
+    else:
+      self.moves[move] = 1
+
   def goTo(self, var, _src=""):
-    self.target = self.enum_map[var]
+    if self.lastTarget is not None and self.lastTarget!=var:
+      self._recordMove([var,self.lastTarget])
+    self.lastTarget=var;
 
   def move(self, n, src=""):
     self.lastComment = self.lastComment + src
@@ -58,7 +70,6 @@ class output(object):
     self.emit('[', src)
 
   def whileEnd(self, src=""):
-    print( self.whilepos )
     target = self.whilepos.pop()
     if target is not None:
       self.goTo(target)
@@ -75,6 +86,27 @@ class output(object):
       raise Exception("while not ended")
     return "\n".join(f"{code:<8} {comment}" for code, comment in self.out if code or comment )
 
+  def jumpCountString(self):
+
+    self.moves = sorted(self.moves.items(), key=lambda move: move[1], reverse=True)
+    return "\n".join(f"{n:>3} : {move}" for move, n in self.moves)
+
+class MethodenZaehler:
+  def __init__ (self):
+    self.zaehler = {}
+
+  def meine_methode (self, move):
+    if move in self.zaehler:
+      self.zaehler[move] += 1
+    else:
+      self.zaehler[move] = 1
+
+  def statistik_string (self):
+    eintraege = sorted(self.zaehler.items(),
+                       key=lambda eintrag: eintrag[1],
+                       reverse=True)
+    return "\n".join(f"{n:>3} : {move}"
+                     for move, n in eintraege)
 
 def translate_instruction(line, out):
   line = line.strip()
@@ -168,5 +200,7 @@ if __name__ == '__main__':
     f.write(out.code())
   with open("debug_out.txt", "w") as f:
     f.write(out.debug_code())
+  with open("jumpcount.txt", "w") as f:
+    f.write(out.jumpCountString())
 
 
