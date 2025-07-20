@@ -45,6 +45,7 @@ class output(object):
     if self.lastTarget is not None and self.lastTarget!=var:
       self._recordMove([var,self.lastTarget])
     self.lastTarget=var;
+    self.target = self.enum_map[var]
 
   def move(self, n, src=""):
     self.lastComment = self.lastComment + src
