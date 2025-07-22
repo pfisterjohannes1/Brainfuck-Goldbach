@@ -21,7 +21,7 @@ class output(object):
     self.enum_map = mapping
     self.lastComment=""
     self.lastTarget=None
-    self.moves={}
+    self.moves = [[0 for _ in range(len(mapping))] for _ in range(len(mapping))]
 
   def emit(self, code, src):
     self.out.append((code, f"// {src}" if src else ""))
@@ -34,12 +34,9 @@ class output(object):
     self.lastComment=""
 
   def _recordMove(self, varables):
-    varables.sort()
-    move = '-'.join(varables)
-    if move in self.moves:
-      self.moves[move] += 1
-    else:
-      self.moves[move] = 1
+    a = self.enum_map[varables[0]]
+    b = self.enum_map[varables[1]]
+    self.moves[a][b] += 1
 
   def goTo(self, var, _src=""):
     if self.lastTarget is not None and self.lastTarget!=var:
@@ -88,9 +85,15 @@ class output(object):
     return "\n".join(f"{code:<8} {comment}" for code, comment in self.out if code or comment )
 
   def jumpCountString(self):
+    return "\n".join\
+      (
+        [
+          f"{list(self.enum_map.keys())[N]:<12}" +
+          "[" + "".join(f"{e:>4}" for e in zeile) + "]"
+          for N,zeile in enumerate(self.moves)
+        ]
+      ) + '\n'
 
-    self.moves = sorted(self.moves.items(), key=lambda move: move[1], reverse=True)
-    return "\n".join(f"{n:>3} : {move}" for move, n in self.moves)
 
 class MethodenZaehler:
   def __init__ (self):
