@@ -85,11 +85,23 @@ class output(object):
     return "\n".join(f"{code:<8} {comment}" for code, comment in self.out if code or comment )
 
   def jumpCountString(self):
-    return "\n".join\
+    W = 4 # with of a cell
+    L = 12 # length of the strings
+    #creat column titles read from top to bottom
+    #creat string array for titles
+    sArray = \
+        [
+          f"{list(self.enum_map.keys())[N//W]:>{L}}"
+            if N%W==0 else " "*L
+          for N in range(W*len(self.moves))
+        ]
+    # rotate titles
+    s = '\n'.join( " "*(L+W) + ''.join(i) for i in zip(*sArray) )
+    return s + '\n' + "\n".join\
       (
         [
-          f"{list(self.enum_map.keys())[N]:<12}" +
-          "[" + "".join(f"{e:>4}" for e in zeile) + "]"
+          f"{list(self.enum_map.keys())[N]:<{L}}" +
+          "[" + "".join(f"{e:>{W}}" for e in zeile) + "]"
           for N,zeile in enumerate(self.moves)
         ]
       ) + '\n'
