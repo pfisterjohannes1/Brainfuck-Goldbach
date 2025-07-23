@@ -46,6 +46,7 @@ enum VariablePosition_T
 {
   V_N,
   V_found,
+  V_temp1,
   V_s1,
   V_s2,
   V_bothPrime, //increased for every summand which is prime
@@ -128,6 +129,7 @@ int main(void)
   #endif
   while( d[V_found] )
     {
+      while( d[V_found] ) { d[V_found]--; }
       d[V_N]++;
       d[V_N]++;
       #if TESTHALT
@@ -137,10 +139,9 @@ int main(void)
       while( d[V_s1] ) { d[V_s1]--; }
       d[V_s1]++;
       d[V_s1]++;
-      ADDEQUAL( V_s2, V_N, V_b2 );
+      ADDEQUAL( V_s2, V_N, V_temp1 );
       d[V_s2]--;
       d[V_s2]--;
-      while( d[V_found] ) { d[V_found]--; }
       d[V_s2]--;
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
@@ -197,7 +198,6 @@ int main(void)
                 }
             }
 
-          d[V_found]++;
 
           //found a pair if bothPrime is 2 (both summands are prime)
           d[V_bothPrime]--;
@@ -207,6 +207,7 @@ int main(void)
               d[V_found]--;
               while( d[V_bothPrime] )  { d[V_bothPrime]++; }
             }
+          d[V_found]++;
           d[V_s1]++;
           d[V_s2]--; //test next summand pair
           d[V_s2]--;
