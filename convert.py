@@ -19,12 +19,17 @@ class output(object):
     self.out = []
     self.whilepos = []
     self.enum_map = mapping
-    self.lastComment=""
+    self.lastComment="" #used for short/fine debuging output
     self.lastTarget=None
     self.moves = [[0 for _ in range(len(mapping))] for _ in range(len(mapping))]
 
+    self.nextDebugLine = '' # used for long/corse debugging
+    self.longDebugCode=[]
+    self.longDebugOut=[]
+
   def emit(self, code, src):
     self.out.append((code, f"// {src}" if src else ""))
+    self.longDebugCode.append(code)
 
   def _execMove(self):
     d = self.target - self.pos
@@ -80,6 +85,13 @@ class output(object):
     if src:
       self.emit('', src)
 
+  def appendDebugLine(self,line):
+    if self.nextDebugLine or self.longDebugCode:
+      self.longDebugOut.append((f"{''.join(self.longDebugCode):<30} // {self.nextDebugLine}"))
+    self.nextDebugLine=line
+    self.longDebugCode=[]
+
+
   def code(self):
     if self.whilepos:
       raise Exception("while not ended")
@@ -89,6 +101,10 @@ class output(object):
     if self.whilepos:
       raise Exception("while not ended")
     return "\n".join(f"{code:<8} {comment}" for code, comment in self.out if code or comment )
+
+  def longDebug_out(self):
+    self.appendDebugLine('')
+    return "\n".join(self.longDebugOut)
 
   def jumpCountString(self):
     W = 4 # with of a cell
@@ -210,6 +226,7 @@ def convert_to_brainfuck(source):
       out = output( enum_map )
       continue
 
+    out.appendDebugLine(line)
     translate_instruction(line, out)
   return out
 
@@ -223,6 +240,8 @@ if __name__ == '__main__':
     f.write(out.code())
   with open("debug_out.txt", "w") as f:
     f.write(out.debug_code())
+  with open("long_debug_out.txt", "w") as f:
+    f.write(out.longDebug_out())
   with open("jumpcount.txt", "w") as f:
     f.write(out.jumpCountString())
 
