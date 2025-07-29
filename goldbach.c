@@ -46,7 +46,6 @@ enum VariablePosition_T
 {
   V_N,
   V_found,
-  V_temp1,
   V_s1,
   V_s2,
   V_bothPrime, //increased for every summand which is prime
@@ -121,25 +120,25 @@ int main(void)
   size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
   int d[100]={0};
 #endif
-  d[V_found]++;
   d[V_N]++;
   d[V_N]++;
   #if TESTHALT
     d[V_N]--;
   #endif
+  d[V_found]++;
   while( d[V_found] )
     {
       while( d[V_found] ) { d[V_found]--; }
+      //Test if N is sumnof 2 primes
+      while( d[V_s1] ) { d[V_s1]--; }
+      d[V_s1]++;
+      d[V_s1]++;
       d[V_N]++;
       d[V_N]++;
       #if TESTHALT
         d[V_N]++;
       #endif
-      //Test if N is sumnof 2 primes
-      while( d[V_s1] ) { d[V_s1]--; }
-      d[V_s1]++;
-      d[V_s1]++;
-      ADDEQUAL( V_s2, V_N, V_temp1 );
+      ADDEQUAL( V_s2, V_N, V_found );
       d[V_s2]--;
       d[V_s2]--;
       d[V_s2]--;
