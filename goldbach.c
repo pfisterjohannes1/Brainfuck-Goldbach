@@ -165,11 +165,13 @@ int main(void)
                   ADDEQUAL( V_b, V_prime, V_b2 );
                   while( d[V_r] ) //we calculate prime%c or bb%a
                     {
-                      ADDEQUAL( V_t, V_c, V_b2 );
+                      d[V_r]--;
+                      ADDEQUAL( V_t, V_c, V_r );
+                      d[V_r]++;
                       while( d[V_t] )
                         {
-                          d[V_r]--;
                           d[V_t]--;
+                          d[V_r]--;
                           d[V_b]--;
 
                           IF( V_b )
