@@ -63,16 +63,22 @@ class output(object):
   def whileStart(self, pos=None, src=""):
     if pos:
       self.goTo(pos)
+    self.nextWhilePos=self.lastTarget
     self._execMove()
-    self.whilepos.append(pos)
     self.emit('[', src)
 
-  def whileEnd(self, src=""):
+  def blockEnd(self, src=""):
     target = self.whilepos.pop()
     if target is not None:
       self.goTo(target)
-    self._execMove()
-    self.emit(']', src)
+      self._execMove()
+      self.emit(']', src)
+
+  def blockStart(self, src=""):
+    self.whilepos.append(self.nextWhilePos)
+    self.nextWhilePos=None
+    if src:
+      self.emit('', src)
 
   def code(self):
     if self.whilepos:
@@ -150,11 +156,17 @@ def translate_instruction(line, out):
     out.whileStart(None if var == 'p' else var, line[:m.end()])
     translate_instruction(line[m.end():], out)
     return
+  # {
+  m = re.match(r'{', line)
+  if m:
+    out.blockStart(line[:m.end()])
+    translate_instruction(line[m.end():], out)
+    return
 
   # Blockende }
   m = re.match(r'}', line)
   if m:
-    out.whileEnd(line[:m.end()])
+    out.blockEnd(line[:m.end()])
     translate_instruction(line[m.end():], out)
     return
 
@@ -180,11 +192,6 @@ def translate_instruction(line, out):
     translate_instruction(line[m.end():], out)
     return
 
-  # {
-  m = re.match(r'{', line)
-  if m:
-    translate_instruction(line[m.end():], out)
-    return
 
 
 
