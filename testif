@@ -41,4 +41,19 @@ init: 0
 code: 15 + ifcode
 space: 1+1 (temp and if can be used from elsewhere, increases code size)
 
+#############
+## Delete  ##
+#############
+data
+no init
+
+
+[[-]
+ifcode
+]
+
+init: 0
+code: 5 + ifcode
+space: 1
+Only useable when data is no longer needed
 
