@@ -24,22 +24,21 @@ space 3 (can be shared with temp and other ifs)
 
 
 ###########
-## Copy  ##
+## Move  ##
 ###########
-data - temp - if
+data - temp
 no init
 
-[->+>+<<]
->
-[-<+>]
->
 [
 ifcode
-[-]
+[->+<]
 ]
+>
+[-<+>]
 
 
 init: 0
-code: 22 + ifcode
-space: 1+2 (temp and if can be used from elsewhere, increases code size)
+code: 15 + ifcode
+space: 1+1 (temp and if can be used from elsewhere, increases code size)
+
 
