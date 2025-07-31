@@ -56,6 +56,7 @@ enum VariablePosition_T
   V_r,
   V_t,
   V_searching,
+  V_COUNT,
 };
 
 #define ADDEQUAL( to, from, temp ) \
@@ -114,11 +115,47 @@ enum VariablePosition_T
   p++;             \
   p++;             \
 
+
 #ifndef GEN_SIMPLE
+size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
+int d[100]={0};
+
+const char *varName(enum VariablePosition_T i)
+  {
+    switch(i)
+      {
+        case V_N:                return "V_N:        ";
+        case V_found:            return "V_found:    ";
+        case V_s1:               return "V_s1:       ";
+        case V_s2:               return "V_s2:       ";
+        case V_bothPrime:        return "V_bothPrime:";
+        case V_b:                return "V_b:        ";
+        case V_b1:               return "V_b1:       ";
+        case V_b2:               return "V_b2:       ";
+        case V_bend:             return "V_bend:     ";
+        case V_testS21:          return "V_testS21:  ";
+        case V_testS2:           return "V_testS2:   ";
+        case V_c:                return "V_c:        ";
+        case V_prime:            return "V_prime:    ";
+        case V_r:                return "V_r:        ";
+        case V_t:                return "V_t:        ";
+        case V_searching:        return "V_searching:";
+        default: break;
+      }
+    return "IMVALID";
+  }
+
+void debug(const char *m)
+  {
+    printf("debug %s:\n",m);
+    for(int i=0;i<V_COUNT;i++)
+      {
+        printf("%s: %i\n",varName(i),d[i]);
+      }
+  }
+
 int main(void)
 {
-  size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
-  int d[100]={0};
 #endif
   d[V_N]++;
   d[V_N]++;
@@ -162,6 +199,7 @@ int main(void)
                   d[V_c]++;
                   d[V_r]++; //Running
                   ADDEQUAL( V_b, V_prime, V_b2 );
+                  debug("before modulo");
                   while( d[V_r] ) //we calculate prime%c or bb%a
                     {
                       d[V_r]--;

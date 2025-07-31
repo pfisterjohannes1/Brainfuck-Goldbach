@@ -149,6 +149,9 @@ class MethodenZaehler:
 def translate_instruction(line, out):
   line = line.strip()
 
+  if not line or line==';':
+    return
+
   # Inkrement: d[x]++;
   m = re.match(r'd\[([^;]+)\]\s*\+\+\s*;', line)
   if m:
@@ -207,6 +210,22 @@ def translate_instruction(line, out):
     out.move(-1, line[:m.end()])
     translate_instruction(line[m.end():], out)
     return
+
+  # debug
+  m = re.match(r'debug\([^)]*?\);', line)
+  if m:
+    #ignore debug
+    translate_instruction(line[m.end():], out)
+    return
+
+  # printf
+  m = re.match(r'printf\([^)]*?\);', line)
+  if m:
+    #ignore printf
+    translate_instruction(line[m.end():], out)
+    return
+
+  raise Exception("could not parse "+line)
 
 
 
