@@ -49,8 +49,9 @@ enum VariablePosition_T
   V_s1,
   V_s2,
   V_bothPrime, //increased for every summand which is prime
+  V_testS2,
+  V_testSummand,
   IFVAR(V_b)
-  IFVAR_R(V_testS2)
   V_c,
   V_prime,
   V_r,
@@ -129,11 +130,11 @@ const char *varName(enum VariablePosition_T i)
         case V_s1:               return "V_s1:       ";
         case V_s2:               return "V_s2:       ";
         case V_bothPrime:        return "V_bothPrime:";
+        case V_testSummand:      return "V_testSummand:";
         case V_b:                return "V_b:        ";
         case V_b1:               return "V_b1:       ";
         case V_b2:               return "V_b2:       ";
         case V_bend:             return "V_bend:     ";
-        case V_testS21:          return "V_testS21:  ";
         case V_testS2:           return "V_testS2:   ";
         case V_c:                return "V_c:        ";
         case V_prime:            return "V_prime:    ";
@@ -183,15 +184,18 @@ int main(void)
         {
           d[V_s2]++;
           d[V_testS2]++; //Which summand we test and how many loops (2).
-          d[V_testS2]++;
-          while( d[V_testS2] ) //test both summands for beeing prime
+          d[V_testSummand]++;
+          d[V_testSummand]++;
+          while( d[V_testSummand] ) //test both summands for beeing prime
             {
-              d[V_testS2]--;
+              d[V_testSummand]--;
               ADDEQUAL( V_prime, V_s1, V_b2 );
-              IFR(V_testS2)
+              while( d[V_testS2] )
+                {
                   while( d[V_prime] ) { d[V_prime]--; }
                   ADDEQUAL( V_prime, V_s2, V_b2 );
-              IFR_END(V_testS2)
+                  d[V_testS2]--;
+                }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
               while( d[V_searching] ) //search for the smallest divisor >1

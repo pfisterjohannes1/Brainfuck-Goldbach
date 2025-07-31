@@ -87,7 +87,7 @@ class output(object):
 
   def appendDebugLine(self,line):
     if self.nextDebugLine or self.longDebugCode:
-      self.longDebugOut.append((f"{''.join(self.longDebugCode):<30} // {self.nextDebugLine}"))
+      self.longDebugOut.append((f"{''.join(self.longDebugCode):<48} // {self.nextDebugLine}"))
     self.nextDebugLine=line
     self.longDebugCode=[]
 
