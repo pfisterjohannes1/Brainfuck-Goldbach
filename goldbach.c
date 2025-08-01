@@ -14,6 +14,7 @@ f tests if a integer >3 is the sum of 2 primes
 //set when we don't test even numbers but ever 3. number till 37
 //This way we can test if the code can halt
 #define TESTHALT 0
+#define PRINT    0
 
 #ifndef GEN_SIMPLE
   #include <stdbool.h>
@@ -122,6 +123,11 @@ void debug(const char *m)
       }
   }
 
+void print(void)
+  {
+    printf("%i\n",d[p]);
+  }
+
 int main(void)
 {
 #endif
@@ -142,6 +148,10 @@ int main(void)
       d[V_N]++;
       #if TESTHALT
         d[V_N]++;
+      #endif
+      #if PRINT
+        p=V_N;
+        print();
       #endif
       ADDEQUAL( V_s2, V_N, V_found );
       d[V_s2]--;
@@ -170,7 +180,7 @@ int main(void)
                   d[V_c]++;
                   d[V_r]++; //Running
                   ADDEQUAL( V_b, V_prime, V_b0 );
-                  debug("before modulo");
+                  //debug("before modulo");
                   while( d[V_r] ) //we calculate prime%c or bb%a
                     {
                       d[V_r]--;
@@ -223,7 +233,10 @@ int main(void)
           d[V_s2]--; //test next summand pair
           d[V_s2]--;
         }
-      printf("found TN %i, %i\n",d[V_N],d[V_found]);
+      #if PRINT
+        p=V_found;
+        print();
+      #endif
     }
 #ifndef GEN_SIMPLE
 }

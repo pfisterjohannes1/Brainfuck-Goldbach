@@ -65,6 +65,10 @@ class output(object):
     self._execMove()
     self.emit('-', src)
 
+  def print(self, src=""):
+    self._execMove()
+    self.emit('.', src)
+
   def whileStart(self, pos=None, src=""):
     if pos:
       self.goTo(pos)
@@ -84,6 +88,7 @@ class output(object):
     self.nextWhilePos=None
     if src:
       self.emit('', src)
+
 
   def appendDebugLine(self,line):
     if self.nextDebugLine or self.longDebugCode:
@@ -208,6 +213,13 @@ def translate_instruction(line, out):
   m = re.match(r'p\s*--\s*;', line)
   if m:
     out.move(-1, line[:m.end()])
+    translate_instruction(line[m.end():], out)
+    return
+
+  # print
+  m = re.match(r'print\([^)]*?\);', line)
+  if m:
+    out.print(line[:m.end()])
     translate_instruction(line[m.end():], out)
     return
 
