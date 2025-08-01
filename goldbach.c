@@ -34,29 +34,24 @@ f tests if a integer >3 is the sum of 2 primes
   name ## 2,        \
   name ## end,      \
 
-//if we use 2 variables next to each other, that both need if
-//use this for the second. it reduces needed variables
-//We use <variableA> 1 0 0 1 <variableB> in the array.
-#define IFVAR_R(name) \
-  name ## 1,        \
-  name,             \
 
 
 enum VariablePosition_T
 {
-  V_N,
-  V_found,
-  V_s1,
-  V_s2,
+  V_N,         //number we test for beeing sum of 2 primes
+  V_found,     //How many prime pairs did we found for V_N
+  V_s1,        //summand 1, s1+s2=N
+  V_s2,        //summand 2, s1+s2=N
   V_bothPrime, //increased for every summand which is prime
-  V_testS2,
-  V_testSummand,
-  IFVAR(V_b)
-  V_c,
-  V_prime,
-  V_r,
-  V_t,
-  V_searching,
+  V_testS2,    //do we currently test s1 or s2
+  V_testSummand, //if there is a summand left to test or did we test s1 and s2
+  IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
+  V_c,         //current divisor to test
+  V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
+  V_r,         //do we run modulo operation
+  V_t,         //to substract V_b-V_c
+  V_searching, //we still search for a divisor
+
   V_COUNT,
 };
 
@@ -95,27 +90,6 @@ enum VariablePosition_T
   p--;             \
   p--;             \
 
-//To simulate if with only while. use it only for IFVAR_R variables
-#define IFR( name )\
-  d[name##1]++;    \
-  p=name;          \
-  while( d[p] )    \
-    {
-
-#define IFR_END(name)\
-      p=name;      \
-      p--;         \
-      p--;         \
-    }              \
-  p--;             \
-  while( d[p] )    \
-    { p--; }       \
-  p++;             \
-  while( d[p] )    \
-    { p--; }       \
-  p++;             \
-  p++;             \
-
 
 #ifndef GEN_SIMPLE
 size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
@@ -125,22 +99,22 @@ const char *varName(enum VariablePosition_T i)
   {
     switch(i)
       {
-        case V_N:                return "V_N:        ";
-        case V_found:            return "V_found:    ";
-        case V_s1:               return "V_s1:       ";
-        case V_s2:               return "V_s2:       ";
-        case V_bothPrime:        return "V_bothPrime:";
+        case V_N:                return "V_N:          ";
+        case V_found:            return "V_found:      ";
+        case V_s1:               return "V_s1:         ";
+        case V_s2:               return "V_s2:         ";
+        case V_bothPrime:        return "V_bothPrime:  ";
         case V_testSummand:      return "V_testSummand:";
-        case V_b:                return "V_b:        ";
-        case V_b1:               return "V_b1:       ";
-        case V_b2:               return "V_b2:       ";
-        case V_bend:             return "V_bend:     ";
-        case V_testS2:           return "V_testS2:   ";
-        case V_c:                return "V_c:        ";
-        case V_prime:            return "V_prime:    ";
-        case V_r:                return "V_r:        ";
-        case V_t:                return "V_t:        ";
-        case V_searching:        return "V_searching:";
+        case V_b:                return "V_b:          ";
+        case V_b1:               return "V_b1:         ";
+        case V_b2:               return "V_b2:         ";
+        case V_bend:             return "V_bend:       ";
+        case V_testS2:           return "V_testS2:     ";
+        case V_c:                return "V_c:          ";
+        case V_prime:            return "V_prime:      ";
+        case V_r:                return "V_r:          ";
+        case V_t:                return "V_t:          ";
+        case V_searching:        return "V_searching:  ";
         default: break;
       }
     return "IMVALID";
