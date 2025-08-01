@@ -188,10 +188,11 @@ int main(void)
                         }
                     }
                   d[V_searching]--;
-                  IF(V_b) //set when c was not a divisor of prime (prime%c!=0)
-                    d[V_searching]++;
-                  IF_END( V_b )
-                  while( d[V_b] )  { d[V_b]++; }
+                  while( d[V_b] ) //set when c was not a divisor of prime (prime%c!=0)
+                    {
+                      d[V_searching]++;
+                      while( d[V_b] )  { d[V_b]++; }
+                    }
                 }
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
@@ -227,11 +228,6 @@ int main(void)
 #ifndef GEN_SIMPLE
 }
 #endif
-
-
-
-
-
 
 
 
