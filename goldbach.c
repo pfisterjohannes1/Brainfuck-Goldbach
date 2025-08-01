@@ -30,9 +30,8 @@ f tests if a integer >3 is the sum of 2 primes
 //the pointer again to a known position
 #define IFVAR(name) \
   name,             \
+  name ## 0,        \
   name ## 1,        \
-  name ## 2,        \
-  name ## end,      \
 
 
 
@@ -79,15 +78,10 @@ enum VariablePosition_T
 #define IF_END(name)\
       p=name;      \
       p++;         \
-      p++;         \
     }              \
   p++;             \
   while( d[p] )    \
-    { p++; }       \
-  p--;             \
-  while( d[p] )    \
-    { p++; }       \
-  p--;             \
+    { p--; }       \
   p--;             \
 
 
@@ -106,9 +100,8 @@ const char *varName(enum VariablePosition_T i)
         case V_bothPrime:        return "V_bothPrime:  ";
         case V_testSummand:      return "V_testSummand:";
         case V_b:                return "V_b:          ";
+        case V_b0:               return "V_b0:         ";
         case V_b1:               return "V_b1:         ";
-        case V_b2:               return "V_b2:         ";
-        case V_bend:             return "V_bend:       ";
         case V_testS2:           return "V_testS2:     ";
         case V_c:                return "V_c:          ";
         case V_prime:            return "V_prime:      ";
@@ -163,11 +156,11 @@ int main(void)
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
               d[V_testSummand]--;
-              ADDEQUAL( V_prime, V_s1, V_b2 );
+              ADDEQUAL( V_prime, V_s1, V_b0 );
               while( d[V_testS2] )
                 {
                   while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s2, V_b2 );
+                  ADDEQUAL( V_prime, V_s2, V_b0 );
                   d[V_testS2]--;
                 }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
@@ -176,7 +169,7 @@ int main(void)
                 {
                   d[V_c]++;
                   d[V_r]++; //Running
-                  ADDEQUAL( V_b, V_prime, V_b2 );
+                  ADDEQUAL( V_b, V_prime, V_b0 );
                   debug("before modulo");
                   while( d[V_r] ) //we calculate prime%c or bb%a
                     {

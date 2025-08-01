@@ -15,6 +15,24 @@ ifcode
 
 init: 3 
 code: 12 + if
+space 4 (can be shared with temp and other ifs)
+
+
+
+############
+## Array2 ##
+############
+data - 0 - 1
+>>+<< (init)
+
+[
+ifcode
+>
+]
+>[<]<
+
+init: 5 
+code: 8 + if
 space 3 (can be shared with temp and other ifs)
 
 
