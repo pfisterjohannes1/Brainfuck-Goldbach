@@ -22,21 +22,21 @@ Why using this approch:
 ## Files
 
 Created Files:
-  .gitignore        -
-  Makefile          Makefile to start conversation to Brainfuck and compile C file
-  Readme.md         -
-  convert.py        Python 3 Script to convert reduced C code to Brainfuck
-  goldbach.c        C-Implementation, very close to Brainfuck
-  interpret.py      Brainfuck interpreter
-  testif            Notes on different ways how we could implement a if
+  - .gitignore        -
+  - Makefile          Makefile to start conversation to Brainfuck and compile C file
+  - Readme.md         -
+  - convert.py        Python 3 Script to convert reduced C code to Brainfuck
+  - goldbach.c        C-Implementation, very close to Brainfuck
+  - interpret.py      Brainfuck interpreter
+  - testif            Notes on different ways how we could implement a if
 
 Generated files:
-    debug\_out\_line.txt        Brainfuck code next to the corresponding c expression
-    debug\_out\_expression.txt  Brainfuck code next to the corresponding c Line
-    goldbach\_simple.c          striped goldbach.c run through a preprocessor, used in convert.py
-    jumpcount.txt               List/Matrix how often we change from one variable to a other. For optimation
-    native                      Compiled C code with gcc
-    out.bf                      Generated Brainfuck code
+  - debug\_out\_line.txt        Brainfuck code next to the corresponding c expression
+  - debug\_out\_expression.txt  Brainfuck code next to the corresponding c Line
+  - goldbach\_simple.c          striped goldbach.c run through a preprocessor, used in convert.py
+  - jumpcount.txt               List/Matrix how often we change from one variable to a other. For optimation
+  - native                      Compiled C code with gcc
+  - out.bf                      Generated Brainfuck code
 
 ## Requirements
 
