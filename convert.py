@@ -269,9 +269,9 @@ if __name__ == '__main__':
   out = convert_to_brainfuck(source)
   with open("out.bf", "w") as f:
     f.write(out.code())
-  with open("debug_out.txt", "w") as f:
+  with open("debug_out_expression.txt", "w") as f:
     f.write(out.debug_code())
-  with open("long_debug_out.txt", "w") as f:
+  with open("debug_out_line.txt", "w") as f:
     f.write(out.longDebug_out())
   with open("jumpcount.txt", "w") as f:
     f.write(out.jumpCountString())

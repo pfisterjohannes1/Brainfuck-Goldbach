@@ -1,5 +1,6 @@
-/out.bf
-/jumpcount.txt
-/debug_out.txt
+/debug_out_expression.txt
+/debug_out_line.txt
 /goldbach_simple.c
-/a.out
+/jumpcount.txt
+/native
+/out.bf
