@@ -40,13 +40,13 @@ enum VariablePosition_T
 {
   V_N,         //number we test for beeing sum of 2 primes
   V_found,     //How many prime pairs did we found for V_N
+  V_testSummand, //if there is a summand left to test or did we test s1 and s2
   V_s1,        //summand 1, s1+s2=N
   V_s2,        //summand 2, s1+s2=N
-  V_bothPrime, //increased for every summand which is prime
   V_testS2,    //do we currently test s1 or s2
-  V_testSummand, //if there is a summand left to test or did we test s1 and s2
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
+  V_bothPrime, //increased for every summand which is prime
   V_c,         //current divisor to test
   V_r,         //do we run modulo operation
   V_t,         //to substract V_b-V_c
