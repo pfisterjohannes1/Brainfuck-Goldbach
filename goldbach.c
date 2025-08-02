@@ -46,8 +46,8 @@ enum VariablePosition_T
   V_testS2,    //do we currently test s1 or s2
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
-  V_c,         //current divisor to test
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
+  V_c,         //current divisor to test
   V_r,         //do we run modulo operation
   V_t,         //to substract V_b-V_c
   V_searching, //we still search for a divisor
@@ -159,9 +159,11 @@ int main(void)
       d[V_s2]--;
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
+          //This way we test each possible pair s1+s2=N with 1<s2<N-2
+          //We could only test up to s1=s2, but this code is probably shorter?
           d[V_s2]++;
-          d[V_testS2]++; //Which summand we test and how many loops (2).
-          d[V_testSummand]++;
+          d[V_testS2]++; //Which summand we test in the current iteration
+          d[V_testSummand]++; //loop counter to test s2 then s1
           d[V_testSummand]++;
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
@@ -175,13 +177,12 @@ int main(void)
                 }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
-              while( d[V_searching] ) //search for the smallest divisor >1
+              while( d[V_searching] ) //Do we still search for a divisor?
                 {
                   d[V_c]++;
-                  d[V_r]++; //Running
+                  d[V_r]++; //Running modulo operation
                   ADDEQUAL( V_b, V_prime, V_b0 );
-                  //debug("before modulo");
-                  while( d[V_r] ) //we calculate prime%c or bb%a
+                  while( d[V_r] ) //we calculate prime%c or b%a
                     {
                       d[V_r]--;
                       ADDEQUAL( V_t, V_c, V_r );
@@ -191,7 +192,6 @@ int main(void)
                           d[V_t]--;
                           d[V_r]--;
                           d[V_b]--;
-
                           IF( V_b )
                               d[V_r]++;
                           IF_END( V_b )
@@ -204,6 +204,7 @@ int main(void)
                       while( d[V_b] )  { d[V_b]++; }
                     }
                 }
+              //here, c is the smallest divisor>1 of prime
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
               while( d[V_prime] )
@@ -219,8 +220,7 @@ int main(void)
                 }
             }
 
-
-          //found a pair if bothPrime is 2 (both summands are prime)
+          //found a pair of primes if bothPrime is 2
           d[V_bothPrime]--;
           d[V_bothPrime]--;
           while( d[V_bothPrime] )
