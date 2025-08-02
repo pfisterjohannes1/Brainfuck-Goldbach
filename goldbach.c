@@ -30,7 +30,6 @@ The idea is to have a easier experiment before using brainfuck
 #define IFVAR(name) \
   name,             \
   name ## 0,        \
-  name ## 1,        \
 
 
 
@@ -99,7 +98,6 @@ const char *varName(enum VariablePosition_T i)
         case V_testSummand:      return "V_testSummand:";
         case V_b:                return "V_b:          ";
         case V_b0:               return "V_b0:         ";
-        case V_b1:               return "V_b1:         ";
         case V_testS2:           return "V_testS2:     ";
         case V_c:                return "V_c:          ";
         case V_prime:            return "V_prime:      ";
@@ -187,7 +185,6 @@ int main(void)
                         {
                           d[V_t]--;
                           d[V_r]--;
-                          d[V_b1]++;
                           d[V_b]--;
                           IF( V_b )
                               d[V_r]++;
