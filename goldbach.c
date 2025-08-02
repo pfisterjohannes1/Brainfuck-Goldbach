@@ -7,8 +7,6 @@ Allowed is ++, --, while( n ), int and setting p when position is
 known is allowed.
 printf() for debugging is ok.
 The idea is to have a easier experiment before using brainfuck
-
-f tests if a integer >3 is the sum of 2 primes
 */
 
 //set when we don't test even numbers but ever 3. number till 37
