@@ -171,9 +171,9 @@ int main(void)
               ADDEQUAL( V_prime, V_s1, V_b0 );
               while( d[V_testS2] )
                 {
-                  while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s2, V_b0 );
                   d[V_testS2]--;
+                  while( d[V_prime] ) { d[V_prime]--; }
+                  ADDEQUAL( V_prime, V_s2, V_testS2 );
                 }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
