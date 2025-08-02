@@ -1,75 +1,84 @@
 
 # Brainfuck Goldbach
 
-## About
+## About the Project
 
-The goal is to have a brainfuck program that only halts when the
- goldbach conjecture is wrong.
-And to make the brainfuck code as short as possible.
+The goal of this project is to create a Brainfuck program that halts **only** if the Goldbach Conjecture is false. Additionally, the Brainfuck code should be as short and minimal as possible.
 
-We did this by creating a C program with a goldbach algorithm first, then replacing all ifs,
- variables, = ... till we only use a single array with a single index pointer (not a c pointer)
- and only while - loops
-This C program will be converted run through a C-Preprocessor and then converted to brainfuck with
- a script.
+To achieve this, we first wrote a C program implementing the Goldbach algorithm. Step by step, we replaced all `if` statements, variables, and assignments (`=`) until only a single array with one index pointer (not a C pointer) and `while` loops remained. This reduced C code is then passed through a C preprocessor and converted to Brainfuck using a Python script.
 
-Why using this approch:
- - Easier to change to a different variable layout
- - Easier to test something new
- - Having an equivalent C code you can debug with a C debugger.
+### Why this approach?
 
+- Easy to change variable layout
+- Easy to test new ideas
+- Having equivalent C code allows for debugging with a C debugger
+
+---
 
 ## Files
 
-Created Files:
-  - .gitignore        -
-  - Makefile          Makefile to start conversation to Brainfuck and compile C file
-  - Readme.md         -
-  - convert.py        Python 3 Script to convert reduced C code to Brainfuck
-  - goldbach.c        C-Implementation, very close to Brainfuck
-  - interpret.py      Brainfuck interpreter
-  - testif            Notes on different ways how we could implement a if
+### Created Files
 
-Generated files:
-  - debug\_out\_line.txt        Brainfuck code next to the corresponding c expression
-  - debug\_out\_expression.txt  Brainfuck code next to the corresponding c Line
-  - goldbach\_simple.c          striped goldbach.c run through a preprocessor, used in convert.py
-  - jumpcount.txt               List/Matrix how often we change from one variable to a other. For optimation
-  - native                      Compiled C code with gcc
-  - out.bf                      Generated Brainfuck code
+- `.gitignore`
+- `Makefile` – Compiles the C code and converts it to Brainfuck
+- `Readme.md` – This documentation
+- `convert.py` – Python 3 script to convert reduced C code to Brainfuck
+- `goldbach.c` – C implementation, very close to Brainfuck
+- `interpret.py` – Brainfuck interpreter
+- `testif` – Notes on different ways to implement `if` logic in Brainfuck
+
+### Generated Files
+
+- `debug_out_line.txt` – Brainfuck code with the corresponding C lines
+- `debug_out_expression.txt` – Brainfuck code with corresponding C expressions
+- `goldbach_simple.c` – Preprocessed version of `goldbach.c`, used by `convert.py`
+- `jumpcount.txt` – Matrix showing how often variables are switched (helpful for optimization)
+- `native` – Compiled C executable using `gcc`
+- `out.bf` – Generated Brainfuck code
+
+---
 
 ## Requirements
 
+### Brainfuck Environment
 
-The Brainfuck environment needs:
-- Unlimited cellsize
-- About 20 or cells
-- Access to negative cell offsets (Current version does not use it)
-The script interpret.py should provide that.
+- Unlimited cell size
+- Around 20 or more memory cells
+- Support for negative cell offsets (not used in current version)
 
-For converting and compiling:
-- make
-- Python 3 interpreter
+The provided `interpret.py` interpreter satisfies these requirements.
+
+### Tools Needed for Building
+
+- `make`
+- Python 3
 - Bash
-- gcc
+- `gcc`
 
+---
 
-## Generation
+## Code Generation
 
-Just use the make command
+Simply run:
 
-Preprocessor flags:
-This flags should be 0 for the normal code, set them to 1 for the following alternative
- behaviour.
-TESTHALT: Don't test only/all even numbers but all numbers of 4+3\*n, (4,7,10,13...). The program
- ahould halt at 37. To test if algorithm really works.
-PRINT: Print what number we test and how many ways we found to represent it as a sum of 2 primes.
- Please note that the number outputed is raw and the Brainfuck interpreter should convert it to
- ASCII. interpret.py does that.
+```sh
+make
+```
 
+### Preprocessor Flags
 
-## Licence
+These flags can be set to `1` to enable alternative behavior. By default, they should be set to `0`.
 
-WTFPL: Do what you want.
+- `TESTHALT`: Instead of testing only even numbers, this flag enables testing of numbers in the form `4 + 3n` (i.e., 4, 7, 10, 13, ...).
+  This is useful for verifying that the algorithm functions correctly. When this flag is enabled, the program should halt at 37.
 
+- `PRINT`: Enables output of the currently tested number and the number of valid Goldbach pairings (i.e., how many ways it can be written as the sum of two primes).
+  Note: The output is in raw format, not as ASCII. You need a Brainfuck interpreter that can handle this. The provided `interpret.py` script handles this correctly.
+
+---
+
+## License
+
+**WTFPL** – Do What the Fuck You Want to Public License
+Do whatever you want.
 
