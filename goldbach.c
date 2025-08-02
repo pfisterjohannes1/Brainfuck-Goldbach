@@ -68,7 +68,6 @@ enum VariablePosition_T
 
 //To simulate if with only while. use it only for IFVAR variables
 #define IF( name ) \
-  d[name##1]++;    \
   p=name;          \
   while( d[p] )    \
     {
@@ -188,6 +187,7 @@ int main(void)
                         {
                           d[V_t]--;
                           d[V_r]--;
+                          d[V_b1]++;
                           d[V_b]--;
                           IF( V_b )
                               d[V_r]++;
