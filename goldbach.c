@@ -132,9 +132,8 @@ int main(void)
 {
 #endif
   d[V_N]++;
-  d[V_N]++;
-  #if TESTHALT
-    d[V_N]--;
+  #if !TESTHALT
+    d[V_N]++;
   #endif
   d[V_found]++;
   while( d[V_found] )
