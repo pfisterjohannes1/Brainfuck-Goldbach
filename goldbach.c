@@ -134,21 +134,20 @@ int main(void)
     {
       while( d[V_found] ) { d[V_found]--; }
       //Test if N is sumnof 2 primes
-      while( d[V_s1] ) { d[V_s1]--; }
-      d[V_s1]++;
-      d[V_s1]++;
+      ADDEQUAL( V_s2, V_N, V_found );
       d[V_N]++;
       d[V_N]++;
       #if TESTHALT
+        d[V_s2]++;
         d[V_N]++;
       #endif
       #if PRINT
         p=V_N;
         print();
       #endif
-      ADDEQUAL( V_s2, V_N, V_found );
-      d[V_s2]--;
-      d[V_s2]--;
+      while( d[V_s1] ) { d[V_s1]--; }
+      d[V_s1]++;
+      d[V_s1]++;
       d[V_s2]--;
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
