@@ -43,10 +43,10 @@ enum VariablePosition_T
   V_isPrime,   //Was the last test a prime number / did we already test s2
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
+  V_searching, //we still search for a divisor
   V_c,         //current divisor to test
   V_r,         //do we run modulo operation
   V_t,         //to substract V_b-V_c
-  V_searching, //we still search for a divisor
 
   V_COUNT,
 };
