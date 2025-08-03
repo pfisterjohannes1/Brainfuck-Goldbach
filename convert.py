@@ -54,13 +54,13 @@ class output(object):
     self.pos -= n
 
   def increment(self, pos=None, src=""):
-    if pos:
+    if pos and pos!='p':
       self.goTo(pos)
     self._execMove()
     self.emit('+', src)
 
   def decrement(self, pos=None, src=""):
-    if pos:
+    if pos and pos!='p':
       self.goTo(pos)
     self._execMove()
     self.emit('-', src)
@@ -70,7 +70,7 @@ class output(object):
     self.emit('.', src)
 
   def whileStart(self, pos=None, src=""):
-    if pos:
+    if pos and pos!='p':
       self.goTo(pos)
     self.nextWhilePos=self.lastTarget
     self._execMove()
@@ -177,7 +177,7 @@ def translate_instruction(line, out):
   m = re.match(r'while\s*\(\s*d\[([^;]+)\]\s*\)', line)
   if m:
     var = m.group(1).strip()
-    out.whileStart(None if var == 'p' else var, line[:m.end()])
+    out.whileStart(var, line[:m.end()])
     translate_instruction(line[m.end():], out)
     return
   # {
