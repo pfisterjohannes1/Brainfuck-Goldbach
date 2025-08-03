@@ -41,9 +41,9 @@ enum VariablePosition_T
   V_s1,        //summand 1, s1+s2=N
   V_s2,        //summand 2, s1+s2=N
   V_isPrime,   //Was the last test a prime number / did we already test s2
+  V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
   //variable after this must be non-0 in the IF_END macro
-  V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
   V_searching, //we still search for a divisor
   V_c,         //current divisor to test
   V_r,         //do we run modulo operation
