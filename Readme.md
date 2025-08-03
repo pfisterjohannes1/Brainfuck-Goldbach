@@ -13,6 +13,17 @@ To achieve this, we first wrote a C program implementing the Goldbach algorithm.
 - Easy to test new ideas
 - Having equivalent C code allows for debugging with a C debugger
 
+### What is the Goldbach conjecture
+
+Goldbach made the conjecture that every even number starting from 4 is the sum of 2 primes.
+For example, we have 4=2+2, 6=3+3, 8=3+5, 10=5+5 and 10=3+7, ...
+So far, Mathematicians neither could not prove nor disprove this Goldbach conjecture.
+The only natural numbers >3 we know of that don't fullfill the Goldbach conjecture are odd ones,
+ like 11 that can not be represented as the sum of 2 primes.
+
+Our Brainfuck program checks even numbers starting from 4 and only stops if it finds a number that
+ can not be represented as the sum of 2 primes.
+
 ---
 
 ## Files
