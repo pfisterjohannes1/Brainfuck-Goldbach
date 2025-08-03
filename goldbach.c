@@ -23,9 +23,9 @@ The idea is to have a easier experiment before using brainfuck
 //We need some helper variables when we want to emulate a if
 //Use this when we make a variable that can be used like
 // if( variable )
-//We need <variable> 1 0 0 in the array.
-//in the end of the if we go to the first 0
-//after that, the change from 1 to 0 is used to align
+//We need <variable> 0 <non-0> in the array.
+//in the end of the if we go to the 0
+//after that, the change to 0 is used to align
 //the pointer again to a known position
 #define IFVAR(name) \
   name,             \
@@ -38,10 +38,9 @@ enum VariablePosition_T
   V_N,         //number we test for beeing sum of 2 primes
   V_found,     //How many prime pairs did we found for V_N
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
-  V_bothPrime, //increased for every summand which is prime
   V_s1,        //summand 1, s1+s2=N
   V_s2,        //summand 2, s1+s2=N
-  V_testS2,    //do we currently test s1 or s2
+  V_isPrime,   //Was the last test a prime number / did we already test s2
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
   V_c,         //current divisor to test
@@ -94,11 +93,10 @@ const char *varName(enum VariablePosition_T i)
         case V_found:            return "V_found:      ";
         case V_s1:               return "V_s1:         ";
         case V_s2:               return "V_s2:         ";
-        case V_bothPrime:        return "V_bothPrime:  ";
+        case V_isPrime:          return "V_isPrime:    ";
         case V_testSummand:      return "V_testSummand:";
         case V_b:                return "V_b:          ";
         case V_b0:               return "V_b0:         ";
-        case V_testS2:           return "V_testS2:     ";
         case V_c:                return "V_c:          ";
         case V_prime:            return "V_prime:      ";
         case V_r:                return "V_r:          ";
@@ -156,18 +154,17 @@ int main(void)
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
           //We could only test up to s1=s2, but this code is probably shorter?
           d[V_s2]++;
-          d[V_testS2]++; //Which summand we test in the current iteration
           d[V_testSummand]++; //loop counter to test s2 then s1
           d[V_testSummand]++;
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
               d[V_testSummand]--;
               ADDEQUAL( V_prime, V_s1, V_b0 );
-              while( d[V_testS2] )
+              while( d[V_isPrime] )
                 {
-                  d[V_testS2]--;
+                  d[V_isPrime]--;
                   while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s2, V_testS2 );
+                  ADDEQUAL( V_prime, V_s2, V_isPrime );
                 }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
@@ -206,23 +203,20 @@ int main(void)
                   d[V_prime]--;
                   d[V_c]--;
                 }
-              d[V_bothPrime]++;
+              d[V_isPrime]++;
               while( d[V_c] ) //true if c!=prime => not a prime number
                 {
-                  d[V_bothPrime]--;
+                  d[V_isPrime]--;
                   while( d[V_c] )  { d[V_c]++; }
                 }
             }
 
-          //found a pair of primes if bothPrime is 2
-          d[V_bothPrime]--;
-          d[V_bothPrime]--;
-          while( d[V_bothPrime] )
+          //found a pair of primes if V_isPrime is 1
+          while( d[V_isPrime] )
             {
-              d[V_found]--;
-              while( d[V_bothPrime] )  { d[V_bothPrime]++; }
+              d[V_found]++;
+              d[V_isPrime]--;
             }
-          d[V_found]++;
           d[V_s1]++;
           d[V_s2]--; //test next summand pair
           d[V_s2]--;
