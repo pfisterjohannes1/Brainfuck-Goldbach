@@ -42,6 +42,7 @@ enum VariablePosition_T
   V_s2,        //summand 2, s1+s2=N
   V_isPrime,   //Was the last test a prime number / did we already test s2
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
+  //variable after this must be non-0 in the IF_END macro
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
   V_searching, //we still search for a divisor
   V_c,         //current divisor to test
@@ -160,8 +161,8 @@ int main(void)
             {
               d[V_testSummand]--;
               ADDEQUAL( V_prime, V_s1, V_b0 );
-              while( d[V_isPrime] )
-                {
+              while( d[V_isPrime] ) //we already tested s1 and it was prime, testns2 now
+                { // if s1 was not prime, we test it s1 again (NOP)
                   d[V_isPrime]--;
                   while( d[V_prime] ) { d[V_prime]--; }
                   ADDEQUAL( V_prime, V_s2, V_isPrime );
@@ -219,7 +220,7 @@ int main(void)
             }
           d[V_s1]++;
           d[V_s2]--; //test next summand pair
-          d[V_s2]--;
+          d[V_s2]--; //end at s2==1
         }
       #if PRINT
         p=V_found;
