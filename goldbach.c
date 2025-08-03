@@ -38,8 +38,8 @@ enum VariablePosition_T
   V_N,         //number we test for beeing sum of 2 primes
   V_found,     //How many prime pairs did we found for V_N
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
-  V_s1,        //summand 1, s1+s2=N
-  V_s2,        //summand 2, s1+s2=N
+  V_s2,        //summand 1, s1+s2=N
+  V_s1,        //summand 2, s1+s2=N
   V_isPrime,   //Was the last test a prime number / did we already test s2
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
@@ -160,12 +160,12 @@ int main(void)
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
               d[V_testSummand]--;
-              ADDEQUAL( V_prime, V_s1, V_b0 );
+              ADDEQUAL( V_prime, V_s2, V_b0 );
               while( d[V_isPrime] ) //we already tested s1 and it was prime, testns2 now
                 { // if s1 was not prime, we test it s1 again (NOP)
                   d[V_isPrime]--;
                   while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s2, V_isPrime );
+                  ADDEQUAL( V_prime, V_s1, V_isPrime );
                 }
               d[V_c]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
