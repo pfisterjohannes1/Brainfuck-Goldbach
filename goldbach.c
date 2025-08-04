@@ -11,8 +11,10 @@ The idea is to have a easier experiment before using brainfuck
 
 //set when we don't test even numbers but ever 3. number till 37
 //This way we can test if the code can halt
-#define TESTHALT 0
-#define PRINT    0
+#define TESTHALT    0
+#define PRINT       0
+#define PRINTASCII  0
+
 
 #ifndef GEN_SIMPLE
   #include <stdbool.h>
@@ -82,7 +84,12 @@ enum VariablePosition_T
     { p++; }       \
   p++;             \
 
+#define DO8(t)   t; t; t; t; t; t; t; t;
+#define DO32(t)  DO8(t) DO8(t) DO8(t) DO8(t)
 
+#define ADD32(name) DO32(d[name]++)
+
+#define SUB32(name) DO32(d[name]--)
 
 #ifndef GEN_SIMPLE
 size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
@@ -145,7 +152,13 @@ int main(void)
       #endif
       #if PRINT
         p=V_N;
-        print();
+        #if PRINTASCII
+          ADD32(V_N);
+          print();
+          SUB32(V_N);
+        #else
+          print();
+        #endif
       #endif
       while( d[V_s1] ) { d[V_s1]--; }
       d[V_s1]++;
@@ -225,7 +238,13 @@ int main(void)
         }
       #if PRINT
         p=V_found;
-        print();
+        #if PRINTASCII
+          ADD32(V_N);
+          print();
+          SUB32(V_N);
+        #else
+          print();
+        #endif
       #endif
     }
 #ifndef GEN_SIMPLE
