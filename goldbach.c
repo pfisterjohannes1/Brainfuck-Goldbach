@@ -23,13 +23,14 @@ The idea is to have a easier experiment before using brainfuck
 //We need some helper variables when we want to emulate a if
 //Use this when we make a variable that can be used like
 // if( variable )
-//We need <variable> 0 <non-0> in the array.
+//We need <variable> 0 <non-0> or a <non-0> 0 <variable> in the array.
 //in the end of the if we go to the 0
 //after that, the change to 0 is used to align
 //the pointer again to a known position
+//For the non-0 a variable is used
 #define IFVAR(name) \
-  name,             \
   name ## 0,        \
+  name,             \
 
 
 
@@ -42,8 +43,8 @@ enum VariablePosition_T
   V_s1,        //summand 2, s1+s2=N
   V_isPrime,   //Was the last test a prime number / did we already test s2
   V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
+  //variable before this must be non-0 in the IF_END macro
   IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
-  //variable after this must be non-0 in the IF_END macro
   V_searching, //we still search for a divisor
   V_c,         //current divisor to test
   V_r,         //do we run modulo operation
@@ -74,12 +75,13 @@ enum VariablePosition_T
 //Last 2 -- is to set p back to name
 #define IF_END(name)\
       p=name;      \
-      p++;         \
+      p--;         \
     }              \
-  p++;             \
-  while( d[p] )    \
-    { p--; }       \
   p--;             \
+  while( d[p] )    \
+    { p++; }       \
+  p++;             \
+
 
 
 #ifndef GEN_SIMPLE
