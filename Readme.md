@@ -23,6 +23,7 @@ So far, mathematicians have neither been able to prove nor disprove the Goldbach
 The only natural numbers >3 we know of that are not the sum of 2 primes are odd ones,
  like 11 that can not be represented as the sum of 2 primes.
 
+For more information, see [Goldbach's conjecture on Wikipedia](https://en.wikipedia.org/wiki/Goldbach%27s_conjecture).
 
 ---
 
@@ -50,6 +51,7 @@ But the generated Brainfuck code could probably be shorter.
 - `goldbach.c` – C implementation, very close to Brainfuck
 - `interpret.py` – Brainfuck interpreter
 - `testif` – Notes on different ways to implement `if` logic in Brainfuck
+- `stats.py`  - Tool to display what kind of commands use how much code
 
 ### Generated Files
 
@@ -59,6 +61,7 @@ But the generated Brainfuck code could probably be shorter.
 - `jumpcount.txt` – Matrix showing how often variables are switched (helpful for optimization)
 - `native` – Compiled C executable using `gcc`
 - `out.bf` – Generated Brainfuck code
+- `sizes.txt` - Output of `stats.py`, how big out.bf and its parts are.
 
 ---
 
