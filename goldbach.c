@@ -9,11 +9,14 @@ printf() for debugging is ok.
 The idea is to have a easier experiment before using brainfuck
 */
 
-//set when we don't test even numbers but ever 3. number till 37
-//This way we can test if the code can halt
-#define TESTHALT    0
-#define PRINT       0
-#define PRINTASCII  0
+
+#ifndef TESTHALT //allow CLI-overwritting
+  //set when we don't test even numbers but ever 3. number till 37
+  //This way we can test if the code can halt
+  #define TESTHALT    0
+  #define PRINT       0 //Print the numbers we check and how many prime pairs we found
+  #define PRINTASCII  0 //print as ascii characters (adds 32 before printing. Hard to read.
+#endif
 
 
 #ifndef GEN_SIMPLE
@@ -21,19 +24,6 @@ The idea is to have a easier experiment before using brainfuck
   #include <stdint.h>
   #include <stdio.h>
 #endif
-
-//We need some helper variables when we want to emulate a if
-//Use this when we make a variable that can be used like
-// if( variable )
-//We need <variable> 0 <non-0> or a <non-0> 0 <variable> in the array.
-//in the end of the if we go to the 0
-//after that, the change to 0 is used to align
-//the pointer again to a known position
-//For the non-0 a variable is used
-#define IFVAR(name) \
-  name ## 0,        \
-  name,             \
-
 
 
 enum VariablePosition_T
@@ -44,13 +34,18 @@ enum VariablePosition_T
   V_s2,        //summand 1, s1+s2=N
   V_s1,        //summand 2, s1+s2=N
   V_isPrime,   //Was the last test a prime number / did we already test s2
-  V_prime,     //copy of s1 or s2 we count down for modulo operation used while tesing if prime
-  //variable before this must be non-0 in the IF_END macro
-  IFVAR(V_b)   //copy of V_prime that we can count down for modulo operation
+
+  //We use a optimized mod algorithm
+  //This order should not be changed without changing the algorithm
+  V_mod0,         //has 0 to indicate start position
+  V_modPrime,     //the number we check to be prime or not
+  V_modPrime1,    //moved from V_modDivisor1 durring modulo operation
+  V_modDivisor,   //current divisor to check if V_modPrime is a multiple of
+  V_modDivisor1,  //move from V_mod01 durring modulo operation
+  V_mod01,        //0 to mark end position / to move 0 to 0
+  V_mod02,        //0 to have a NOP-move (0 to 0)
+
   V_searching, //we still search for a divisor
-  V_c,         //current divisor to test
-  V_r,         //do we run modulo operation
-  V_t,         //to substract V_b-V_c
 
   V_COUNT,
 };
@@ -67,22 +62,6 @@ enum VariablePosition_T
       d[temp]--;                   \
       d[from]++;                   \
     }                              \
-
-//To simulate if with only while. use it only for IFVAR variables
-#define IF( name ) \
-  p=name;          \
-  while( d[p] )    \
-    {
-
-//Last 2 -- is to set p back to name
-#define IF_END(name)\
-      p=name;      \
-      p--;         \
-    }              \
-  p--;             \
-  while( d[p] )    \
-    { p++; }       \
-  p++;             \
 
 #define DO8(t)   t; t; t; t; t; t; t; t;
 #define DO32(t)  DO8(t) DO8(t) DO8(t) DO8(t)
@@ -101,16 +80,19 @@ const char *varName(enum VariablePosition_T i)
       {
         case V_N:                return "V_N:          ";
         case V_found:            return "V_found:      ";
+        case V_testSummand:      return "V_testSummand:";
         case V_s1:               return "V_s1:         ";
         case V_s2:               return "V_s2:         ";
         case V_isPrime:          return "V_isPrime:    ";
-        case V_testSummand:      return "V_testSummand:";
-        case V_b:                return "V_b:          ";
-        case V_b0:               return "V_b0:         ";
-        case V_c:                return "V_c:          ";
-        case V_prime:            return "V_prime:      ";
-        case V_r:                return "V_r:          ";
-        case V_t:                return "V_t:          ";
+
+        case V_mod0:             return "V_mod0        ";
+        case V_modPrime:         return "V_modPrime    ";
+        case V_modPrime1:        return "V_modPrime1   ";
+        case V_modDivisor:       return "V_modDivisor  ";
+        case V_modDivisor1:      return "V_modDivisor1 ";
+        case V_mod01:            return "V_mod01       ";
+        case V_mod02:            return "V_mod02       ";
+
         case V_searching:        return "V_searching:  ";
         default: break;
       }
@@ -174,55 +156,76 @@ int main(void)
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
               d[V_testSummand]--;
-              ADDEQUAL( V_prime, V_s2, V_b0 );
+              ADDEQUAL( V_modPrime, V_s2, V_mod0 );
               while( d[V_isPrime] ) //we already tested s1 and it was prime, testns2 now
                 { // if s1 was not prime, we test it s1 again (NOP)
                   d[V_isPrime]--;
-                  while( d[V_prime] ) { d[V_prime]--; }
-                  ADDEQUAL( V_prime, V_s1, V_isPrime );
+                  while( d[V_modPrime] ) { d[V_modPrime]--; }
+                  ADDEQUAL( V_modPrime, V_s1, V_mod0 );
                 }
-              d[V_c]++; //we test if this is a divisor. start with 1+1=2
+              d[V_modDivisor]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
               while( d[V_searching] ) //Do we still search for a divisor?
                 {
-                  d[V_c]++;
-                  d[V_r]++; //Running modulo operation
-                  ADDEQUAL( V_b, V_prime, V_b0 );
-                  while( d[V_r] ) //we calculate prime%c or b%a
+                  d[V_modDivisor]++;  //Test all possible divisors >1 till we find one
+                  //Modulo operation, calc V_modPrime%V_modDivisor
+                  while( d[V_modPrime] ) //we calculate prime%c or b%a
                     {
-                      d[V_r]--;
-                      ADDEQUAL( V_t, V_c, V_r );
-                      d[V_r]++;
-                      while( d[V_t] )
+                      d[V_modPrime1]++;
+                      d[V_modDivisor]--;
+                      d[V_modDivisor1]++;
+                      p=V_modPrime;
+                      p++;
+                      p++;
+                      while( d[p] )
+                        { p++; }
+                      p++;
+                      while( d[p] )
                         {
-                          d[V_t]--;
-                          d[V_r]--;
-                          d[V_b]--;
-                          IF( V_b )
-                              d[V_r]++;
-                          IF_END( V_b )
+                          d[p]--;
+                          p--;
+                          d[p]++;
+                          p++;
                         }
+                      p--; p--;
+                      while( d[p] )
+                        { p--; }
+                      p++;
+                      d[V_modPrime]--;
                     }
+                  //We now have V_modPrime=0, V_modPrime1=<oldPrime>,
+                  //V_modDivisor1=V_modPrime%V_modDivisor (of before the loop)
+
+                  while( d[V_modPrime1] ) //restore V_modPrime to the old value
+                    {
+                      d[V_modPrime1]--;
+                      d[V_modPrime]++;
+                    }
+
                   d[V_searching]--;
-                  while( d[V_b] ) //set when c was not a divisor of prime (prime%c!=0)
+                  while( d[V_modDivisor1] ) //0 when we found a divisor
                     {
                       d[V_searching]++;
-                      while( d[V_b] )  { d[V_b]++; }
+                      while( d[V_modDivisor1] ) //restore divisor
+                        {
+                          d[V_modDivisor1]--;
+                          d[V_modDivisor]++;
+                        }
                     }
                 }
-              //here, c is the smallest divisor>1 of prime
+              //here, V_modDivisor is the smallest divisor>1 of prime
               //test if c==prime, if this is true the smallest divisor is prime
               // and prime is actually a prime number
-              while( d[V_prime] )
+              while( d[V_modDivisor] )
                 {
-                  d[V_prime]--;
-                  d[V_c]--;
+                  d[V_modPrime]--;
+                  d[V_modDivisor]--;
                 }
               d[V_isPrime]++;
-              while( d[V_c] ) //true if c!=prime => not a prime number
+              while( d[V_modPrime] ) //true if V_modPrime is not a prime number
                 {
                   d[V_isPrime]--;
-                  while( d[V_c] )  { d[V_c]++; }
+                  while( d[V_modPrime] )  { d[V_modPrime]--; }
                 }
             }
 
