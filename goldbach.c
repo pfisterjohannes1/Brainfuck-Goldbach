@@ -135,22 +135,6 @@ int main(void)
       #if TESTHALT
         d[V_s2]++;
       #endif
-      #if PRINT
-        d[V_s2]++;
-        d[V_s2]++;
-        d[V_s2]++;
-        p=V_s2;
-        #if PRINTASCII
-          ADD32(V_s2);
-          print();
-          SUB32(V_s2);
-        #else
-          print();
-        #endif
-        d[V_s2]--;
-        d[V_s2]--;
-        d[V_s2]--;
-      #endif
       debug("start2");
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
@@ -248,6 +232,16 @@ int main(void)
           d[V_s2]--; //end at s2==1
         }
       #if PRINT
+        d[V_s1]++;
+        p=V_s1;
+        #if PRINTASCII
+          ADD32(V_s1);
+          print();
+          SUB32(V_s1);
+        #else
+          print();
+        #endif
+        d[V_s1]--;
         p=V_found;
         #if PRINTASCII
           ADD32(V_found);
