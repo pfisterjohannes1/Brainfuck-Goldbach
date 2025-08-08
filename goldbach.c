@@ -124,6 +124,9 @@ int main(void)
     {
       while( d[V_found] )
         { d[V_found]--; }
+
+      //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
+      // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
       while( d[V_s1] )
         {
            d[V_s1]--;
@@ -135,7 +138,6 @@ int main(void)
       #if TESTHALT
         d[V_s2]++;
       #endif
-      debug("start2");
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
@@ -161,14 +163,16 @@ int main(void)
                 {
                   d[V_modDivisor]++;  //Test all possible divisors >1 till we find one
                   //Modulo operation, calc V_modPrime%V_modDivisor
-                  while( d[V_modPrime] ) //we calculate prime%c or b%a
+                  while( d[V_modPrime] ) //we calculate prime%divisor
                     {
-                      d[V_modPrime1]++;
+                      d[V_modPrime1]++; //create a backup of V_modPrime
                       d[V_modDivisor]--;
                       d[V_modDivisor1]++;
                       p=V_modPrime;
                       p++;
                       p++;
+                      //The following lines move back V_modDivisor1 to V_modDivisor iff
+                      // V_modDivisor==0, move 0 to 0 otherwise (NOP).
                       while( d[p] )
                         { p++; }
                       p++;
@@ -179,6 +183,7 @@ int main(void)
                           d[p]++;
                           p++;
                         }
+                      //aligin pointer back to V_modPrime
                       p--; p--;
                       while( d[p] )
                         { p--; }
