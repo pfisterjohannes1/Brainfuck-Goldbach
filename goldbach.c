@@ -1,12 +1,14 @@
 /*
-C program that is a playing ground for algorithm in brainfuck
-It is close to brainfuck, f() only uses ++ and --, no
- functions, pointers, for, >, <, ==, ... (only !=0 is allowed),
- switch case, else, if, = (except to set pointer p) ...
-Allowed is ++, --, while( n ), int and setting p when position is
-known is allowed.
-printf() for debugging is ok.
-The idea is to have a easier experiment before using brainfuck
+This program should halt iff the goldbach conjecture is wrong.
+
+C program which is very close to brainfuck
+We have no functions*, no +, -, =, ==, !, %, *, /. <<, for, if, switch, ->, struct, ...
+Only allow: ++, --, index "pointer" p and fixed indexes in one single array d, while()
+ and one single enum (for variable positions inside d)
+The idea is to reduce this so that it translates directly to brainfuck.
+
+*The exception is the print(), and debug() function, that is hidden with macros and
+ the calls are ignored on the conversation script.
 */
 
 
@@ -70,7 +72,7 @@ enum VariablePosition_T
 #define SUB32(name) DO32(d[name]--)
 
 #ifndef GEN_SIMPLE
-size_t p=0; //Data pointer, in brainfuck it could be manipulated with <>
+size_t p=0; //Data "pointer", in brainfuck it can be manipulated with <>
 int d[100]={0};
 
 const char *varName(enum VariablePosition_T i)

@@ -71,7 +71,7 @@ But the generated Brainfuck code could probably be shorter.
 
 - Unlimited cell size
 - Around 20 or more memory cells
-- Support for negative cell offsets (not used in current version)
+- Support for negative cell offsets
 
 The provided `interpret.py` interpreter satisfies these requirements.
 

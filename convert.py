@@ -14,8 +14,8 @@ def parse_enum(source):
 
 class output(object):
   def __init__(self, mapping):
-    self.pos = 0
-    self.target = 0
+    self.pos = None
+    self.target = None
     self.out = []
     self.whilepos = []
     self.enum_map = mapping
@@ -32,10 +32,12 @@ class output(object):
     self.longDebugCode.append(code)
 
   def _execMove(self):
-    d = self.target - self.pos
-    code = '>' * d if d > 0 else '<' * (-d)
+    if self.pos is not None:
+      d = self.target - self.pos
+      code = '>' * d if d > 0 else '<' * (-d)
+      self.pos = self.target
+      self.emit(code, self.lastComment)
     self.pos = self.target
-    self.emit(code, self.lastComment)
     self.lastComment=""
 
   def _recordMove(self, varables):
