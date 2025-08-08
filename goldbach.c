@@ -28,11 +28,10 @@ The idea is to have a easier experiment before using brainfuck
 
 enum VariablePosition_T
 {
-  V_N,         //number we test for beeing sum of 2 primes
-  V_found,     //How many prime pairs did we found for V_N
+  V_found,     //How many prime pairs did we found for V_s1+V_s2
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
   V_s2,        //summand 1, s1+s2=N
-  V_s1,        //summand 2, s1+s2=N
+  V_s1,        //summand 2, s1+s2=N, N is the number we test
   V_isPrime,   //Was the last test a prime number / did we already test s2
 
   //We use a optimized mod algorithm
@@ -78,7 +77,6 @@ const char *varName(enum VariablePosition_T i)
   {
     switch(i)
       {
-        case V_N:                return "V_N:          ";
         case V_found:            return "V_found:      ";
         case V_testSummand:      return "V_testSummand:";
         case V_s1:               return "V_s1:         ";
@@ -116,41 +114,49 @@ void print(void)
 int main(void)
 {
 #endif
-  d[V_N]++;
   #if !TESTHALT
-    d[V_N]++;
+    d[V_s2]++;
   #endif
   d[V_found]++;
   while( d[V_found] )
     {
-      while( d[V_found] ) { d[V_found]--; }
-      //Test if N is sumnof 2 primes
-      ADDEQUAL( V_s2, V_N, V_found );
-      d[V_N]++;
-      d[V_N]++;
+      while( d[V_found] )
+        { d[V_found]--; }
+      while( d[V_s1] )
+        {
+           d[V_s1]--;
+           d[V_s2]++;
+        }
+
+      d[V_s1]++;
+      d[V_s1]++;
       #if TESTHALT
         d[V_s2]++;
-        d[V_N]++;
       #endif
       #if PRINT
-        p=V_N;
+        d[V_s2]++;
+        d[V_s2]++;
+        d[V_s2]++;
+        p=V_s2;
         #if PRINTASCII
-          ADD32(V_N);
+          ADD32(V_s2);
           print();
-          SUB32(V_N);
+          SUB32(V_s2);
         #else
           print();
         #endif
+        d[V_s2]--;
+        d[V_s2]--;
+        d[V_s2]--;
       #endif
-      while( d[V_s1] ) { d[V_s1]--; }
-      d[V_s1]++;
-      d[V_s1]++;
-      d[V_s2]--;
+      debug("start2");
       while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
         {
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
+          //Where N is the number we want to test
           //We could only test up to s1=s2, but this code is probably shorter?
           d[V_s2]++;
+          debug("start");
           d[V_testSummand]++; //loop counter to test s2 then s1
           d[V_testSummand]++;
           while( d[V_testSummand] ) //test both summands for beeing prime
@@ -242,9 +248,9 @@ int main(void)
       #if PRINT
         p=V_found;
         #if PRINTASCII
-          ADD32(V_N);
+          ADD32(V_found);
           print();
-          SUB32(V_N);
+          SUB32(V_found);
         #else
           print();
         #endif
