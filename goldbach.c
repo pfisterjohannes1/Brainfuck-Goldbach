@@ -104,7 +104,7 @@ void debug(const char *m)
     fprintf(stderr,"debug %s:\n",m);
     for(int i=0;i<V_COUNT;i++)
       {
-        fprintf(stderr,"%s: %i\n",varName(i),D[50+i]);
+        fprintf(stderr,"%s: %i\n",varName(i),d[i]);
       }
   }
 
