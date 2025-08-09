@@ -32,8 +32,7 @@ enum VariablePosition_T
 {
   V_found,     //How many prime pairs did we found for V_s1+V_s2
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
-  V_s2,        //summand 1, s1+s2=N
-  V_s1,        //summand 2, s1+s2=N, N is the number we test
+  V_s1,        //summand 2, s1+V_modPrime=N, N is the number we test
   V_isPrime,   //Was the last test a prime number / did we already test s2
 
   //We use a optimized mod algorithm
@@ -82,7 +81,6 @@ const char *varName(enum VariablePosition_T i)
         case V_found:            return "V_found:      ";
         case V_testSummand:      return "V_testSummand:";
         case V_s1:               return "V_s1:         ";
-        case V_s2:               return "V_s2:         ";
         case V_isPrime:          return "V_isPrime:    ";
 
         case V_mod0:             return "V_mod0        ";
@@ -118,46 +116,32 @@ int main(void)
 {
 #endif
   #if !TESTHALT
-    d[V_s2]++;
+    d[V_modPrime]++;
   #endif
+  d[V_s1]++;
   d[V_found]++;
   while( d[V_found] )
     {
       while( d[V_found] )
         { d[V_found]--; }
 
-      //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
-      // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
-      while( d[V_s1] )
-        {
-           d[V_s1]--;
-           d[V_s2]++;
-        }
 
       d[V_s1]++;
-      d[V_s1]++;
       #if TESTHALT
-        d[V_s2]++;
+        d[V_modPrime]++;
       #endif
-      while( d[V_s2] ) //we decrease second sumand and increase first till second one is 1
+      while( d[V_modPrime] ) //we decrease second sumand and increase first till second one is 1
         {
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
           //Where N is the number we want to test
           //We could only test up to s1=s2, but this code is probably shorter?
-          d[V_s2]++;
+          d[V_modPrime]++;
           debug("start");
           d[V_testSummand]++; //loop counter to test s2 then s1
           d[V_testSummand]++;
           while( d[V_testSummand] ) //test both summands for beeing prime
             {
               d[V_testSummand]--;
-              ADDEQUAL( V_modPrime, V_s2, V_mod0 );
-              while( d[V_isPrime] ) //we already tested s1 and it was prime, testns2 now
-                { // if s1 was not prime, we test it s1 again (NOP)
-                  d[V_isPrime]--;
-                  while( d[V_modPrime] ) { d[V_modPrime]--; }
-                  ADDEQUAL( V_modPrime, V_s1, V_mod0 );
-                }
               d[V_modDivisor]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
               while( d[V_searching] ) //Do we still search for a divisor?
@@ -218,36 +202,65 @@ int main(void)
                 {
                   d[V_modPrime]--;
                   d[V_modDivisor]--;
+                  d[V_mod0]++; //keep a copy of V_modPrime
                 }
               d[V_isPrime]++;
               while( d[V_modPrime] ) //true if V_modPrime is not a prime number
                 {
                   d[V_isPrime]--;
-                  while( d[V_modPrime] )  { d[V_modPrime]--; }
+                  while( d[V_modPrime] )
+                    {
+                       d[V_modPrime]--;
+                       d[V_mod0]++; //keep a copynof V_modPrime
+                    }
+                }
+              //swap data between s1 and V_modPrime (now in V_mod0)
+              while( d[V_s1] )
+                {
+                   d[V_s1]--;
+                   d[V_modPrime]++;
+                }
+              while( d[V_mod0] )
+                {
+                   d[V_mod0]--;
+                   d[V_s1]++;
                 }
             }
 
-          //found a pair of primes if V_isPrime is 1
+          //found a pair of primes if V_isPrime is 2
+          d[V_found]++;
+          d[V_isPrime]--;
+          d[V_isPrime]--;
           while( d[V_isPrime] )
             {
-              d[V_found]++;
-              d[V_isPrime]--;
+              d[V_found]--;
+              while( d[V_isPrime] )
+                { d[V_isPrime]++; }
             }
-          d[V_s1]++;
-          d[V_s2]--; //test next summand pair
-          d[V_s2]--; //end at s2==1
+          debug("end");
+          d[V_s1]++; //test next summand pair
+          d[V_modPrime]--;
+          d[V_modPrime]--;
         }
+      //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
+      // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
+      while( d[V_s1] )
+        {
+           d[V_s1]--;
+           d[V_modPrime]++;
+        }
+      d[V_s1]++;
       #if PRINT
-        d[V_s1]++;
-        p=V_s1;
+        d[V_modPrime]++;
+        p=V_modPrime;
         #if PRINTASCII
-          ADD32(V_s1);
+          ADD32(V_modPrime);
           print();
-          SUB32(V_s1);
+          SUB32(V_modPrime);
         #else
           print();
         #endif
-        d[V_s1]--;
+        d[V_modPrime]--;
         p=V_found;
         #if PRINTASCII
           ADD32(V_found);
