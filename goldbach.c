@@ -111,6 +111,7 @@ void debug(const char *m)
 void print(void)
   {
     printf("%i\n",d[p]);
+    fflush(stdout);
   }
 
 int main(void)
