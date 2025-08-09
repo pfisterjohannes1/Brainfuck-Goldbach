@@ -152,14 +152,15 @@ void print(void)
 int main(void)
 {
 #endif
+  d[V_always12]++;
+  d[V_always1]++;
+
   #if !TESTHALT
     d[V_modPrime]++;
   #endif
   d[V_modPrime]++;
-  d[V_always11]++;
-  d[V_always1]++;
-  d[V_always12]++;
 
+  d[V_always11]++;
   d[V_found]++;
   while( d[V_found] )
     {
@@ -173,9 +174,9 @@ int main(void)
            d[V_2modPrime]--;
            d[V_modPrime]++;
         }
+      d[V_2modPrime]++;
+      d[V_2modPrime]++;
 
-      d[V_2modPrime]++;
-      d[V_2modPrime]++;
       #if TESTHALT
         d[V_modPrime]++;
       #endif
@@ -299,9 +300,9 @@ int main(void)
         p=V_2modPrime;;
         d[V_2modPrime]++;
         #if PRINTASCII
-          ADD32(V_s1);
+          ADD32(V_2modPrime);
           print();
-          SUB32(V_s1);
+          SUB32(V_2modPrime);
         #else
           print();
         #endif
