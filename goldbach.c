@@ -76,11 +76,19 @@ enum VariablePosition_T
       d[from]++;                   \
     }                              \
 
-#define MOVENEXT() \
-  p++; p++; p++; p++; p++; p++; p++; p++; p++; p++;
+#if GEN_SIMPLE
+  #define MOVENEXT() \
+    p++; p++; p++; p++; p++; p++; p++; p++; p++; p++; p++;
+  #define MOVEPRE() \
+    p--; p--; p--; p--; p--; p--; p--; p--; p--; p--; p--;
 
-#define MOVEPRE() \
-  p--; p--; p--; p--; p--; p--; p--; p--; p--; p--;
+#else
+  #define MOVENEXT() \
+    d+=11;
+
+  #define MOVEPRE() \
+    d-=11;
+#endif
 
 #define DO8(t)   t; t; t; t; t; t; t; t;
 #define DO32(t)  DO8(t) DO8(t) DO8(t) DO8(t)
@@ -91,27 +99,14 @@ enum VariablePosition_T
 
 #ifndef GEN_SIMPLE
 size_t p=0; //Data "pointer", in brainfuck it can be manipulated with <>
-int d[100]={0};
+
+int D[2000]={0};
+int *d=D+50;
 
 const char *varName(enum VariablePosition_T i)
   {
     switch(i)
       {
-  //      case V_found:            return "V_found:      ";
-  //      case V_testSummand:      return "V_testSummand:";
-  //      case V_s1:               return "V_s1:         ";
-  //      case V_s2:               return "V_s2:         ";
-  //      case V_isPrime:          return "V_isPrime:    ";
-
-  //      case V_mod0:             return "V_mod0        ";
-  //      case V_modPrime:         return "V_modPrime    ";
-  //      case V_modPrime1:        return "V_modPrime1   ";
-  //      case V_modDivisor:       return "V_modDivisor  ";
-  //      case V_modDivisor1:      return "V_modDivisor1 ";
-  //      case V_mod01:            return "V_mod01       ";
-  //      case V_mod02:            return "V_mod02       ";
-
-  //      case V_searching:        return "V_searching:  ";
         case V_found:              return "V_found";
         case V_always0:            return "V_always0";
         case V_always11:           return "V_always11";
@@ -161,11 +156,11 @@ int main(void)
     d[V_modPrime]++;
   #endif
   d[V_modPrime]++;
-  d[V_modPrime]++;
-  d[V_found]++;
   d[V_always11]++;
   d[V_always1]++;
   d[V_always12]++;
+
+  d[V_found]++;
   while( d[V_found] )
     {
       while( d[V_found] )
@@ -182,17 +177,20 @@ int main(void)
       d[V_2modPrime]++;
       d[V_2modPrime]++;
       #if TESTHALT
-        d[V_2modPrime]++;
+        d[V_modPrime]++;
       #endif
-      while( d[V_2modPrime] ) //we decrease second sumand and increase first till second one is 1
+      debug("before");
+
+      d[V_modPrime]--;
+      while( d[V_modPrime] ) //we decrease second sumand and increase first till second one is 1
         {
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
           //Where N is the number we want to test
           //We could only test up to s1=s2, but this code is probably shorter?
-          d[V_2modPrime]++;
+          d[V_modPrime]++;
+
           while( d[V_always11] ) //test both summands for beeing prime
             {
-              debug("start");
               d[V_modDivisor]++; //we test if this is a divisor. start with 1+1=2
               d[V_searching]++;
               while( d[V_searching] ) //Do we still search for a divisor?
@@ -252,23 +250,34 @@ int main(void)
               while( d[V_modDivisor] )
                 {
                   d[V_modPrime]--;
+                  d[V_modPrime1]++;
                   d[V_modDivisor]--;
                 }
               d[V_isPrime]++;
               while( d[V_modPrime] ) //true if V_modPrime is not a prime number
                 {
                   d[V_isPrime]--;
-                  while( d[V_modPrime] )  { d[V_modPrime]--; }
+                  while( d[V_modPrime] )
+                    {
+                       d[V_modPrime]--;
+                       d[V_modPrime1]++;
+                    }
+                }
+              while( d[V_modPrime1] ) //restore V_modPrime to the old value
+                {
+                  d[V_modPrime1]--;
+                  d[V_modPrime]++;
                 }
               MOVENEXT();
             }
           MOVEPRE();
 
           //found a pair of primes if V_isPrime is 1
+          debug("neo");
           while( d[V_isPrime] )
             {
-              MOVEPRE();
               d[V_isPrime]--;
+              MOVEPRE();
               while( d[V_isPrime] )
                 {
                   d[V_isPrime]--;
@@ -279,12 +288,16 @@ int main(void)
           MOVEPRE();
           while( d[V_isPrime] )
             { d[V_isPrime]--; }
-          d[V_modPrime]++;
-          d[V_2modPrime]--; //test next summand pair
-          d[V_2modPrime]--; //end at s2==1
+          d[V_2modPrime]++; //test next summand pair
+          d[V_modPrime]--;
+
+          d[V_modPrime]--;
         }
+      d[V_modPrime]++;
+
       #if PRINT
-        d[V_modPrime]++;
+        p=V_2modPrime;;
+        d[V_2modPrime]++;
         #if PRINTASCII
           ADD32(V_s1);
           print();
@@ -292,7 +305,7 @@ int main(void)
         #else
           print();
         #endif
-        d[V_modPrime]--;
+        d[V_2modPrime]--;
         p=V_found;
         #if PRINTASCII
           ADD32(V_found);
