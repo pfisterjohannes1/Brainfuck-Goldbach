@@ -116,14 +116,21 @@ int main(void)
 {
 #endif
   #if !TESTHALT
-    d[V_modS2]++;
+    d[V_s1]++;
   #endif
-  d[V_s1]++;
   d[V_found]++;
   while( d[V_found] )
     {
       while( d[V_found] )
         { d[V_found]--; }
+      //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
+      // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
+      while( d[V_s1] )
+        {
+           d[V_s1]--;
+           d[V_modS2]++;
+        }
+      d[V_s1]++;
 
 
       d[V_s1]++;
@@ -229,6 +236,7 @@ int main(void)
 
           //found a pair of primes if V_isPrime is 2
           d[V_found]++;
+          d[V_s1]++; //test next summand pair
           d[V_isPrime]--;
           d[V_isPrime]--;
           while( d[V_isPrime] )
@@ -238,21 +246,12 @@ int main(void)
                 { d[V_isPrime]++; }
             }
           debug("end");
-          d[V_s1]++; //test next summand pair
           d[V_modS2]--;
           d[V_modS2]--;
         }
-      //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
-      // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
-      while( d[V_s1] )
-        {
-           d[V_s1]--;
-           d[V_modS2]++;
-        }
-      d[V_s1]++;
       #if PRINT
-        d[V_modS2]++;
-        p=V_modS2;
+        d[V_s1]++;
+        p=V_s1;
         #if PRINTASCII
           ADD32(V_modS2);
           print();
@@ -260,7 +259,7 @@ int main(void)
         #else
           print();
         #endif
-        d[V_modS2]--;
+        d[V_s1]--;
         p=V_found;
         #if PRINTASCII
           ADD32(V_found);
