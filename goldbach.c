@@ -30,18 +30,18 @@ The idea is to reduce this so that it translates directly to brainfuck.
 
 enum VariablePosition_T
 {
-  V_found,     //How many prime pairs did we found for V_s1+V_s2
+  V_found,     //How many prime pairs did we found for V_s1+V_modS2
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
-  V_s1,        //summand 2, s1+V_modPrime=N, N is the number we test
-  V_isPrime,   //Was the last test a prime number / did we already test s2
+  V_s1,        //summand 2, s1+V_modS2=N, N is the number we test
+  V_isPrime,   //Was the last test a prime number 
 
   //We use a optimized mod algorithm
   //This order should not be changed without changing the algorithm
   V_mod0,         //has 0 to indicate start position
-  V_modPrime,     //the number we check to be prime or not
-  V_modPrime1,    //moved from V_modDivisor1 durring modulo operation
-  V_modDivisor,   //current divisor to check if V_modPrime is a multiple of
-  V_modDivisor1,  //move from V_mod01 durring modulo operation
+  V_modS2,        //the number we check to be prime or not, and a summand 
+  V_modS2_,       //moved from V_modS2 durring modulo operation
+  V_modDivisor,   //current divisor to check if V_modS2 is a multiple of
+  V_modDivisor1,  //move from V_modDivisor durring modulo operation
   V_mod01,        //0 to mark end position / to move 0 to 0
   V_mod02,        //0 to have a NOP-move (0 to 0)
 
@@ -84,8 +84,8 @@ const char *varName(enum VariablePosition_T i)
         case V_isPrime:          return "V_isPrime:    ";
 
         case V_mod0:             return "V_mod0        ";
-        case V_modPrime:         return "V_modPrime    ";
-        case V_modPrime1:        return "V_modPrime1   ";
+        case V_modS2:            return "V_modS2       ";
+        case V_modS2_:           return "V_modS2_      ";
         case V_modDivisor:       return "V_modDivisor  ";
         case V_modDivisor1:      return "V_modDivisor1 ";
         case V_mod01:            return "V_mod01       ";
@@ -116,7 +116,7 @@ int main(void)
 {
 #endif
   #if !TESTHALT
-    d[V_modPrime]++;
+    d[V_modS2]++;
   #endif
   d[V_s1]++;
   d[V_found]++;
@@ -128,14 +128,14 @@ int main(void)
 
       d[V_s1]++;
       #if TESTHALT
-        d[V_modPrime]++;
+        d[V_modS2]++;
       #endif
-      while( d[V_modPrime] ) //we decrease second sumand and increase first till second one is 1
+      while( d[V_modS2] ) //we decrease second sumand and increase first till second one is 1
         {
           //This way we test each possible pair s1+s2=N with 1<s2<N-2
           //Where N is the number we want to test
           //We could only test up to s1=s2, but this code is probably shorter?
-          d[V_modPrime]++;
+          d[V_modS2]++;
           debug("start");
           d[V_testSummand]++; //loop counter to test s2 then s1
           d[V_testSummand]++;
@@ -147,13 +147,13 @@ int main(void)
               while( d[V_searching] ) //Do we still search for a divisor?
                 {
                   d[V_modDivisor]++;  //Test all possible divisors >1 till we find one
-                  //Modulo operation, calc V_modPrime%V_modDivisor
-                  while( d[V_modPrime] ) //we calculate prime%divisor
+                  //Modulo operation, calc V_modS2%V_modDivisor
+                  while( d[V_modS2] ) //we calculate s2%divisor
                     {
-                      d[V_modPrime1]++; //create a backup of V_modPrime
+                      d[V_modS2_]++; //create a backup of V_modS2
                       d[V_modDivisor]--;
                       d[V_modDivisor1]++;
-                      p=V_modPrime;
+                      p=V_modS2;
                       p++;
                       p++;
                       //The following lines move back V_modDivisor1 to V_modDivisor iff
@@ -168,20 +168,20 @@ int main(void)
                           d[p]++;
                           p++;
                         }
-                      //aligin pointer back to V_modPrime
+                      //aligin pointer back to V_modS2
                       p--; p--;
                       while( d[p] )
                         { p--; }
                       p++;
-                      d[V_modPrime]--;
+                      d[V_modS2]--;
                     }
-                  //We now have V_modPrime=0, V_modPrime1=<oldPrime>,
-                  //V_modDivisor1=V_modPrime%V_modDivisor (of before the loop)
+                  //We now have V_modS2=0, V_modS2_=<oldPrime>,
+                  //V_modDivisor1=V_modS2%V_modDivisor (of before the loop)
 
-                  while( d[V_modPrime1] ) //restore V_modPrime to the old value
+                  while( d[V_modS2_] ) //restore V_modS2 to the old value
                     {
-                      d[V_modPrime1]--;
-                      d[V_modPrime]++;
+                      d[V_modS2_]--;
+                      d[V_modS2]++;
                     }
 
                   d[V_searching]--;
@@ -200,25 +200,25 @@ int main(void)
               // and prime is actually a prime number
               while( d[V_modDivisor] )
                 {
-                  d[V_modPrime]--;
+                  d[V_modS2]--;
                   d[V_modDivisor]--;
-                  d[V_mod0]++; //keep a copy of V_modPrime
+                  d[V_mod0]++; //keep a copy of V_modS2
                 }
               d[V_isPrime]++;
-              while( d[V_modPrime] ) //true if V_modPrime is not a prime number
+              while( d[V_modS2] ) //true if V_modS2 is not a prime number
                 {
                   d[V_isPrime]--;
-                  while( d[V_modPrime] )
+                  while( d[V_modS2] )
                     {
-                       d[V_modPrime]--;
-                       d[V_mod0]++; //keep a copynof V_modPrime
+                       d[V_modS2]--;
+                       d[V_mod0]++; //keep a copynof V_modS2
                     }
                 }
-              //swap data between s1 and V_modPrime (now in V_mod0)
+              //swap data between s1 and V_modS2 (now in V_mod0)
               while( d[V_s1] )
                 {
                    d[V_s1]--;
-                   d[V_modPrime]++;
+                   d[V_modS2]++;
                 }
               while( d[V_mod0] )
                 {
@@ -239,28 +239,28 @@ int main(void)
             }
           debug("end");
           d[V_s1]++; //test next summand pair
-          d[V_modPrime]--;
-          d[V_modPrime]--;
+          d[V_modS2]--;
+          d[V_modS2]--;
         }
       //V_s1 has the current value, bit we start with V_s1=2, V_s2=N-2 and
       // check everything till we stop at V_s1=N-1, V_s2=1 (don't test this case)
       while( d[V_s1] )
         {
            d[V_s1]--;
-           d[V_modPrime]++;
+           d[V_modS2]++;
         }
       d[V_s1]++;
       #if PRINT
-        d[V_modPrime]++;
-        p=V_modPrime;
+        d[V_modS2]++;
+        p=V_modS2;
         #if PRINTASCII
-          ADD32(V_modPrime);
+          ADD32(V_modS2);
           print();
-          SUB32(V_modPrime);
+          SUB32(V_modS2);
         #else
           print();
         #endif
-        d[V_modPrime]--;
+        d[V_modS2]--;
         p=V_found;
         #if PRINTASCII
           ADD32(V_found);
