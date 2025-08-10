@@ -32,13 +32,13 @@ enum VariablePosition_T
 {
   V_found,     //How many prime pairs did we found for V_s1+V_modS2
   V_testSummand, //if there is a summand left to test or did we test s1 and s2
+  V_isPrime,   //Was the last test a prime number
   V_s1,        //summand 2, s1+V_modS2=N, N is the number we test
-  V_isPrime,   //Was the last test a prime number 
 
   //We use a optimized mod algorithm
   //This order should not be changed without changing the algorithm
   V_mod0,         //has 0 to indicate start position
-  V_modS2,        //the number we check to be prime or not, and a summand 
+  V_modS2,        //the number we check to be prime or not, and a summand
   V_modS2_,       //moved from V_modS2 durring modulo operation
   V_modDivisor,   //current divisor to check if V_modS2 is a multiple of
   V_modDivisor1,  //move from V_modDivisor durring modulo operation
@@ -236,7 +236,6 @@ int main(void)
 
           //found a pair of primes if V_isPrime is 2
           d[V_found]++;
-          d[V_s1]++; //test next summand pair
           d[V_isPrime]--;
           d[V_isPrime]--;
           while( d[V_isPrime] )
@@ -245,6 +244,7 @@ int main(void)
               while( d[V_isPrime] )
                 { d[V_isPrime]++; }
             }
+          d[V_s1]++; //test next summand pair
           debug("end");
           d[V_modS2]--;
           d[V_modS2]--;
