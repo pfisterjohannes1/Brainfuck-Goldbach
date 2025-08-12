@@ -52,6 +52,7 @@ But the generated Brainfuck code could probably be shorter.
 - `interpret.py` – Brainfuck interpreter
 - `testif` – Notes on different ways to implement `if` logic in Brainfuck
 - `stats.py`  - Tool to display what kind of commands use how much code
+- `webinterpreter.html`  - HTML-Brainfuck interpreter that uses numberic outlut
 
 ### Generated Files
 
@@ -72,6 +73,7 @@ But the generated Brainfuck code could probably be shorter.
 - Unlimited cell size
 - Around 20 or more memory cells
 - Support for negative cell offsets
+- Outputs cell values as numbers (if you want a readable output).
 
 The provided `interpret.py` interpreter satisfies these requirements.
 

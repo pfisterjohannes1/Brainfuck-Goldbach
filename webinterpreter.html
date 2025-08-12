@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Brainfuck Interpreter</title>
+    <style>
+      /* Mostly chatGPT programmed, i don't understand much about HTML or JS. If you want to change it you are probably better of starting from scratch */
+      :root {
+        --bg: #0f1724;
+        --panel: #0b1220;
+        --accent: #06b6d4;
+        --muted: #94a3b8;
+        --glass: rgba(255,255,255,0.03);
+      }
+
+      html,body{height:100%;}
+      body{
+        margin:0;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(180deg,#071024 0%, #071722 100%);
+        color:#e6eef6;
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+        padding:20px;
+        box-sizing:border-box;
+      }
+
+      .container{
+        max-width:1100px;
+        margin:0 auto;
+        display:grid;
+        grid-template-columns:1fr 360px;
+        gap:18px;
+        align-items:start;
+      }
+
+      .card{
+        background:var(--panel);
+        border-radius:12px;
+        padding:14px;
+        box-shadow:0 6px 18px rgba(2,6,23,0.6);
+      }
+
+      header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+      header h1{margin:0;font-size:1.15rem}
+      header p{margin:0;color:var(--muted);font-size:0.9rem}
+
+      textarea.code{
+        width:100%;
+        height:320px;
+        background:var(--glass);
+        border:1px solid rgba(255,255,255,0.04);
+        color:#dff8ff;
+        padding:12px;
+        border-radius:8px;
+        font-family: "Courier New", monospace;
+        font-size:13px;
+        resize:vertical;
+      }
+
+      .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+      button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+      button.primary{background:linear-gradient(90deg,var(--accent),#7c3aed);border:none;color:#021117}
+      button.danger{background:transparent;border:1px solid rgba(255,50,50,0.12);color:#ffb4b4}
+
+      .panel-right{position:sticky;top:20px}
+
+      label{display:block;font-size:0.85rem;margin-bottom:6px;color:var(--muted)}
+      .io{display:flex;flex-direction:column;gap:8px}
+      textarea.small{height:80px;padding:8px;font-family:monospace}
+
+      .tape{display:flex;gap:6px;overflow:auto;padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent)}
+      .cell{min-width:44px;padding:8px;border-radius:6px;background:rgba(0,0,0,0.14);text-align:center;font-family:monospace}
+      .cell.active{outline:2px solid var(--accent);transform:translateY(-4px)}
+      .meta{font-size:0.8rem;color:var(--muted);margin-top:8px}
+
+      .status{display:flex;gap:8px;align-items:center;margin-top:8px}
+      .status .dot{width:10px;height:10px;border-radius:50%}
+      .dot.running{background:limegreen}
+      .dot.stopped{background:#ff6b6b}
+
+      footer{margin-top:14px;color:var(--muted);font-size:0.85rem}
+
+      /* Responsive */
+      @media (max-width:960px){
+        .container{grid-template-columns:1fr;}
+        .panel-right{position:relative}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <main class="card">
+        <header>
+          <div>
+            <h1>Brainfuck Interpreter</h1>
+            <p>Crappy brainfuck interpreter, most written to have numeric cell output to show my goldbach conjecture program</p>
+          </div>
+        </header>
+
+        <label for="code">Code</label>
+        <textarea id="code" class="code" spellcheck="false" placeholder="Gib hier Brainfuck-Code ein...">
++<<<+[[-]>>>[->>+<<]++>>[+<<<++[->>>>>+>>>>+[<<<<+<<[>+>->+<[>]>[-<+>]<<[<]>-]>[-<+>]>>>>>-<<<[>>>+<<<[-<+>]]>>>]<<<<[<<->>-<<<+>>>]<<<<<<+>>>>[<<<<->>>>[-<+>]]<<[->>+<<]>[-<+>]<<]<<+>--[<->[+]]>>+>>--]<<+.-<<<.]
+        </textarea>
+
+        <div class="controls" role="toolbar">
+          <button id="run" class="primary">Run</button>
+          <button id="pause">Pause</button>
+          <button id="step">Step</button>
+          <button id="reset">Reset</button>
+          <button id="load-sample">Reload example</button>
+          <button id="clear-output" class="danger">clear output</button>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
+          <div style="flex:1">
+            <label for="speed">Speed: <span id="speed-label">20 ms</span></label>
+            <input id="speed" type="range" min="0" max="100" value="20" style="width:100%">
+          </div>
+          <div style="width:140px">
+            <label for="outputColumns">Output columns:</label>
+            <input id="outputColumns" type="number" min="0" max="20" value="2" style="width:100%">
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label for="input">Input (ASCII)</label>
+          <textarea id="input" class="small" placeholder="Write input here "></textarea>
+        </div>
+
+        <div style="margin-top:12px">
+          <label for="output">Output (numeric)</label>
+          <textarea id="output" class="small" readonly placeholder="Output will be shown here"></textarea>
+        </div>
+
+        <div class="meta">This interpreter outputs cell values as numbers.</div>
+      </main>
+
+      <aside class="card panel-right">
+        <div>
+          <label>Tape</label>
+          <div id="tape" class="tape" aria-live="polite"></div>
+          <div class="meta" id="pointer-meta">Index: 6</div>
+
+          <div style="margin-top:14px">
+            <label>Programstate</label>
+            <div class="status">
+              <div id="status-dot" class="dot stopped"></div>
+              <div id="status-text">Stopped</div>
+            </div>
+
+            <div style="margin-top:12px">
+              <label>Error / Info</label>
+              <div id="info" class="meta">No Error.</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  <script>
+
+  (function () {
+    'use strict';
+
+    const el = id => document.getElementById(id);
+
+    const codeEl = el('code');
+    const inputEl = el('input');
+    const outputEl = el('output');
+    const runBtn = el('run');
+    const pauseBtn = el('pause');
+    const stepBtn = el('step');
+    const resetBtn = el('reset');
+    const loadBtn = el('load-sample');
+    const clearOutputBtn = el('clear-output');
+    const tapeEl = el('tape');
+    const speedEl = el('speed');
+    const columnsEl = el('outputColumns');
+    const speedLabel = el('speed-label');
+    const statusDot = el('status-dot');
+    const statusText = el('status-text');
+    const infoEl = el('info');
+    const pointerMeta = el('pointer-meta');
+
+    // interne Laufzeitvariablen
+    let tape = [];
+    let cells = 30;
+    let ip = 0;               // instruction pointer
+    let dp = 6;               // data pointer
+    let code = '';
+    let inputBuf = '';
+    let outputBuf = '';
+    let running = false;
+    let intervalId = null;
+    let bracketMap = {};
+    let outputColumn = 0;
+
+    // Hilfsfunktionen
+    function resetState() {
+      cells = 30;
+      tape = new Int32Array(cells);
+      ip = 0;
+      dp = 6;
+      outputBuf = '';
+      inputBuf = inputEl.value || '';
+      updateOutput();
+      renderTape();
+      setStatus(false, 'stopped');
+      infoEl.textContent = 'No error';
+      outputColumn=0;
+    }
+
+    function setStatus(runningState, text) {
+      running = runningState;
+      if (running) {
+        statusDot.classList.remove('stopped');
+        statusDot.classList.add('running');
+        statusText.textContent = text || 'running';
+      } else {
+        statusDot.classList.remove('running');
+        statusDot.classList.add('stopped');
+        statusText.textContent = text || 'stopped';
+      }
+    }
+
+    function updateOutput() {
+      el('output').value = outputBuf;
+    }
+
+    function renderTape() {
+      tapeEl.innerHTML = '';
+      const windowSize = 25;
+      const start = Math.max(0, dp - Math.floor(windowSize/2));
+      const end = Math.min(cells, start + windowSize);
+
+      for (let i = start; i < end; i++) {
+        const c = document.createElement('div');
+        c.className = 'cell' + (i === dp ? ' active' : '');
+        c.innerHTML = `<div style="font-size:0.75rem;color:var(--muted)">${i}</div><div>${tape[i]}</div>`;
+        tapeEl.appendChild(c);
+      }
+
+      pointerMeta.textContent = `Index: ${dp} — Value: ${tape[dp]}`;
+    }
+
+    function prepareCode(raw) {
+      const filtered = raw.replace(/[^\[\]<>+\-.,]/g, '');
+      const stack = [];
+      const map = {};
+
+      for (let i = 0; i < filtered.length; i++) {
+        const ch = filtered[i];
+        if (ch === '[') {
+          stack.push(i);
+        } else if (ch === ']') {
+          if (stack.length === 0) {
+            throw new Error('Unmatched closing bracket at position ' + i);
+          }
+          const openPos = stack.pop();
+          map[openPos] = i;
+          map[i] = openPos;
+        }
+      }
+
+      if (stack.length > 0) {
+        throw new Error('Unmatched opening bracket at position ' + stack.pop());
+      }
+
+      return {filtered, map};
+    }
+
+    // Ein Einzelschritt-Ausführer (führt genau 1 Command aus)
+    function stepOnce() {
+      if (ip < 0 || ip >= code.length) {
+        setStatus(false, 'done');
+        return false;
+      }
+
+      const cmd = code[ip];
+
+      switch (cmd) {
+        case '>':
+          dp++;
+          if (dp >= cells) {
+            dp = cells - 1;
+            infoEl.textContent = 'Warnung: Zeiger am rechten Rand (max Zellen).';
+          }
+          ip++;
+          break;
+        case '<':
+          dp--;
+          if (dp < 0) {
+            dp = 0;
+            infoEl.textContent = 'Warnung: Zeiger am linken Rand.';
+          }
+          ip++;
+          break;
+        case '+':
+          tape[dp] = (tape[dp] + 1) ;
+          ip++;
+          break;
+        case '-':
+          tape[dp] = (tape[dp] - 1) ;
+          ip++;
+          break;
+        case '.':
+          const columsMax = parseInt(columnsEl.value, 10) || 0;
+          let stringEnd = ", ";
+          outputColumn++;
+          if( outputColumn==columsMax ) //0 means everything on a line without columns
+          {
+            stringEnd="\n";
+            outputColumn=0;
+          }
+          outputBuf += tape[dp].toString().padStart(3) + stringEnd;
+          updateOutput();
+          ip++;
+          break;
+        case ',':
+          if (inputBuf.length === 0) {
+            tape[dp] = 0;
+          } else {
+            tape[dp] = inputBuf.charCodeAt(0);
+            inputBuf = inputBuf.slice(1);
+          }
+          ip++;
+          break;
+        case '[':
+          if (tape[dp] === 0) {
+            ip = bracketMap[ip] + 1;
+          } else {
+            ip++;
+          }
+          break;
+        case ']':
+          if (tape[dp] !== 0) {
+            ip = bracketMap[ip] + 1;
+          } else {
+            ip++;
+          }
+          break;
+        default:
+          ip++;
+          break;
+      }
+
+      return true;
+    }
+
+    function getDrawDelaySleepTime() 
+    {
+      const delayIn = parseInt(speedEl.value, 10) ;
+      const delay = Math.pow(10,delayIn/20-2);
+      const f= delayIn<20 ? 1000 : delayIn < 40 ? 100 : 10;
+      speedLabel.textContent = Math.round( delay*f )/f + ' ms';
+      //speedLabel.textContent = delay.toPrecision( 4 ) + ' ms';
+      const N= delay<10? 10/delay : 1;
+      const delayTime = delay/N ;
+      return [ delayTime , N ];
+    }
+
+    function runLoop()
+    {
+      const [ delayTime, N ] = getDrawDelaySleepTime() ;
+
+
+      if (!running) return;
+
+
+      for( let i=0; i<N ; i++)
+      {
+        try {
+          if (ip >= code.length) {
+            setStatus(false, 'done');
+            return stopInterval();
+          }
+
+          const ok = stepOnce();
+          if (!ok) {
+            renderTape();
+            stopInterval();
+            return;
+          }
+        } catch (e) {
+          infoEl.textContent = 'Error durring execution' + e.message;
+          setStatus(false, 'error');
+          stopInterval();
+        }
+      }
+      renderTape();
+    }
+
+    function startInterval() {
+      const [ delayTime, N ] = getDrawDelaySleepTime() ;
+
+      stopInterval();
+      intervalId = setInterval(runLoop, delayTime);
+    }
+
+    function stopInterval() {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }
+
+    // UI-Handler
+    runBtn.addEventListener('click', function () {
+      try {
+        const prepared = prepareCode(codeEl.value);
+        code = prepared.filtered;
+        bracketMap = prepared.map;
+        if (!tape || tape.length !== cells) {
+          resetState();
+        }
+        setStatus(true, 'running');
+        startInterval();
+      } catch (e) {
+        infoEl.textContent = 'Parser-Error: ' + e.message;
+        setStatus(false, 'error');
+      }
+    });
+
+    pauseBtn.addEventListener('click', function () {
+      setStatus(false, 'paused');
+      stopInterval();
+    });
+
+    stepBtn.addEventListener('click', function () {
+      try {
+        const prepared = prepareCode(codeEl.value);
+        code = prepared.filtered;
+        bracketMap = prepared.map;
+        if (!tape || tape.length !== cells) {
+          resetState();
+        }
+        const cont = stepOnce();
+        renderTape();
+        if (!cont) setStatus(false, 'done');
+      } catch (e) {
+        infoEl.textContent = 'Parser-error: ' + e.message;
+        setStatus(false, 'error');
+      }
+    });
+
+    resetBtn.addEventListener('click', function () {
+      stopInterval();
+      resetState();
+    });
+
+    loadBtn.addEventListener('click', function () {
+      codeEl.value = '+<<<+[[-]>>>[->>+<<]++>>[+<<<++[->>>>>+>>>>+[<<<<+<<[>+>->+<[>]>[-<+>]<<[<]>-]>[-<+>]>>>>>-<<<[>>>+<<<[-<+>]]>>>]<<<<[<<->>-<<<+>>>]<<<<<<+>>>>[<<<<->>>>[-<+>]]<<[->>+<<]>[-<+>]<<]<<+>--[<->[+]]>>+>>--]<<+.-<<<.]';
+    });
+
+    clearOutputBtn.addEventListener('click', function () {
+      outputBuf = '';
+      updateOutput();
+    });
+
+    speedEl.addEventListener('input', function () {
+      getDrawDelaySleepTime();
+      if (running) {
+        startInterval();
+      }
+    });
+
+    // Initialisierung beim Laden
+    resetState();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function (ev) {
+      if (ev.ctrlKey && ev.key === 'Enter') {
+        ev.preventDefault();
+        runBtn.click();
+      }
+      if (ev.ctrlKey && ev.altKey && (ev.key === 'r' || ev.key === 'R')) {
+        ev.preventDefault();
+        resetBtn.click();
+      }
+    });
+
+  })();
+
+    </script>
+  </body>
+</html>
+
+
