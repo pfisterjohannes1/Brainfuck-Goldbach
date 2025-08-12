@@ -27,7 +27,7 @@ For more information, see [Goldbach's conjecture on Wikipedia](https://en.wikipe
 
 ---
 
-## Generell Algorithm
+## General Algorithm
 
 This program tests each even number sequentially, starting at 4, and checks if it can be expressed as a sum of two primes. If such a representation is not found, the program halts.
 
@@ -36,7 +36,7 @@ This program tests each even number sequentially, starting at 4, and checks if i
 ## State of this Project
 
 We have a Brainfuck code that halts iff the goldbach conjecture is false. So far it is done.
-But the generated Brainfuck code could probably be shorter.
+We reduced the code length by quite a bit but we hope we or someone else finds a shorter version.
 
 ---
 
@@ -52,7 +52,7 @@ But the generated Brainfuck code could probably be shorter.
 - `interpret.py` – Brainfuck interpreter
 - `testif` – Notes on different ways to implement `if` logic in Brainfuck
 - `stats.py`  - Tool to display what kind of commands use how much code
-- `webinterpreter.html`  - HTML-Brainfuck interpreter that uses numberic outlut
+- `webinterpreter.html`  - HTML-Brainfuck interpreter that uses numeric output
 
 ### Generated Files
 
@@ -73,7 +73,7 @@ But the generated Brainfuck code could probably be shorter.
 - Unlimited cell size
 - Around 20 or more memory cells
 - Support for negative cell offsets
-- Outputs cell values as numbers (if you want a readable output).
+- Outputs cell values as numeric values (if you want a readable output).
 
 The provided `interpret.py` interpreter satisfies these requirements.
 
